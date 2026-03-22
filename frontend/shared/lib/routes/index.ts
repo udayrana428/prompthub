@@ -1,0 +1,16 @@
+export const ROUTES = {
+  HOME: "/",
+  LOGIN: "/login",
+  SIGNUP: "/signup",
+  PROMPTS: "/prompts",
+  PROMPT: (slug: string) => `/prompts/${slug}`,
+  PROFILE: (username: string) => `/profile/${username}`,
+  ACCOUNT: "/account",
+  ADMIN: {
+    ROOT: "/admin",
+    USERS: "/admin/users",
+    PROMPTS: "/admin/prompts",
+    TAGS: "/admin/tags",
+    ROLES: "/admin/access-control/roles",
+  },
+} as const;

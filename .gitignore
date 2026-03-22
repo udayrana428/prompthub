@@ -1,0 +1,29 @@
+# root .gitignore
+.DS_Store
+*.env
+.env.local
+```
+
+Each subfolder's `.gitignore` handles its own (node_modules, __pycache__, dist, etc.) — Git respects all of them together.
+
+---
+
+## Deployment — Does This Cause Problems?
+
+No — most deployment platforms handle monorepos natively:
+
+| Platform | Monorepo Support |
+|---|---|
+| **Vercel** | Set "Root Directory" to `frontend/` in project settings |
+| **Railway / Render** | Point to `backend/` as the root |
+| **Docker** | Each folder has its own `Dockerfile`, build from root |
+| **GitHub Actions** | Use `working-directory: ./frontend` in your workflow |
+
+You can even set up CI/CD to only trigger frontend deploy when `frontend/**` changes, and backend deploy when `backend/**` changes — using path filters.
+
+---
+
+## Bottom Line
+```
+→ Same product, small-mid team  =  Monorepo (your case)
+→ Independent services, separate teams  =  Polyrepo

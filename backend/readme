@@ -1,0 +1,13 @@
+// Array form — use when operations are INDEPENDENT
+// Simple, clean, slightly more performant
+await prisma.$transaction([
+repo.operationA(id),
+repo.operationB(id),
+]);
+
+// Callback form — use when operations are INTERDEPENDENT
+// i.e. result of one is needed as input to another
+await prisma.$transaction(async (tx) => {
+const user = await repo.createUser(data, tx);
+await repo.assignRole(user.id, roleId, tx); // needs user.id from above
+});

@@ -1,0 +1,870 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String      @id @default(uuid())
+
+  // Identity
+  username        String      @unique @db.VarChar(50)
+  slug            String      @unique @db.VarChar(60)
+  email           String      @unique @db.VarChar(255)
+  password        String?     @db.VarChar(255)
+
+  loginType       LoginType   @default(EMAIL)
+  status          UserStatus  @default(ACTIVE)
+
+  isEmailVerified Boolean     @default(false)
+  emailVerifiedAt DateTime?
+
+  lastLoginAt     DateTime?
+
+  // Security
+  failedLoginCount Int        @default(0)
+  lockedUntil      DateTime?
+  passwordUpdatedAt DateTime?
+
+
+  // Soft Delete
+  deletedOn       DateTime?
+  deletedById     String?
+  deletedBy       User?       @relation("UserDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn       DateTime    @default(now())
+  createdById     String?
+  createdBy       User?       @relation("UserCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn      DateTime    @updatedAt
+  modifiedById    String?
+  modifiedBy      User?       @relation("UserModifiedBy", fields: [modifiedById], references: [id])
+
+  // Relations
+  profile         Profile?
+  likes           PromptLike[]
+  favorites       PromptFavorite[]
+  sessions        Session[]
+
+  // Self relation reverse fields
+  createdUsers    User[]      @relation("UserCreatedBy")
+  modifiedUsers   User[]      @relation("UserModifiedBy")
+  deletedUsers    User[]      @relation("UserDeletedBy")
+
+  profilesCreated   Profile[] @relation("ProfileCreatedBy")
+  profilesModified  Profile[] @relation("ProfileModifiedBy")
+  profilesDeleted   Profile[] @relation("ProfileDeletedBy")
+
+  rolesCreated   Role[] @relation("RoleCreatedBy")
+  rolesModified  Role[] @relation("RoleModifiedBy")
+  rolesDeleted   Role[] @relation("RoleDeletedBy")
+
+  userRoles      UserRoleMap[]
+
+  permissionsCreated   Permission[] @relation("PermissionCreatedBy")
+  permissionsModified  Permission[] @relation("PermissionModifiedBy")
+  permissionsDeleted   Permission[] @relation("PermissionDeletedBy")
+
+  rolesAssigned   UserRoleMap[] @relation("UserRoleAssignedBy")
+
+  rolePermissionsAssigned RolePermissionMap[] @relation("RolePermissionAssignedBy")
+
+  menusCreated   Menu[] @relation("MenuCreatedBy")
+  menusModified  Menu[] @relation("MenuModifiedBy")
+  menusDeleted   Menu[] @relation("MenuDeletedBy")
+
+  roleMenusAssigned RoleMenuMap[] @relation("RoleMenuAssignedBy")
+
+  categoriesCreated   Category[] @relation("CategoryCreatedBy")
+  categoriesModified  Category[] @relation("CategoryModifiedBy")
+  categoriesDeleted   Category[] @relation("CategoryDeletedBy")
+
+  // Tag audit relations
+  tagsCreated   Tag[] @relation("TagCreatedBy")
+  tagsModified  Tag[] @relation("TagModifiedBy")
+  tagsDeleted   Tag[] @relation("TagDeletedBy")
+
+  promptsCreated   Prompt[] @relation("PromptCreatedBy")
+  promptsDeleted   Prompt[] @relation("PromptDeletedBy")
+  promptsModified  Prompt[] @relation("PromptModifiedBy")
+
+  followers  UserFollow[] @relation("UserFollowers")
+  following  UserFollow[] @relation("UserFollowing")
+
+  notifications     Notification[] @relation("UserNotifications")
+  notificationsSent Notification[] @relation("NotificationActor")
+
+  // Comments written by user
+  comments            PromptComment[]
+
+  // Comment likes
+  commentLikes        CommentLike[]
+
+  // Prompt views (when logged in)
+  promptViews         PromptView[]
+
+  // Deleted comments
+  commentsDeleted     PromptComment[] @relation("CommentDeletedBy")
+
+  // Seo 
+  SeoModified  SeoOverride[] @relation("SeoModifiedBy")
+
+
+
+
+  @@index([createdOn])
+  @@index([email, deletedOn])
+  @@index([slug, deletedOn])
+  @@index([status])
+  @@index([deletedOn])
+}
+
+enum LoginType {
+  EMAIL
+  GOOGLE
+  GITHUB
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  LOCKED
+}
+
+model Session {
+  id              String   @id @default(uuid())
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  refreshTokenHash String  @db.VarChar(255)
+
+  userAgent       String?  @db.VarChar(500)
+  ipAddress       String?  @db.VarChar(100)
+
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+  revokedAt       DateTime?
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+  @@index([expiresAt])
+}
+
+model Profile {
+  id            String   @id @default(uuid())
+
+  // 1:1 relation
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  // Public Info
+  firstName     String?  @db.VarChar(100)
+  lastName      String?  @db.VarChar(100)
+  displayName   String?  @db.VarChar(150)
+  bio           String?  @db.VarChar(500)
+  website       String?  @db.VarChar(255)
+  location      String?  @db.VarChar(150)
+
+  // Media
+  avatarUrl     String?  @db.VarChar(500)
+  coverImageUrl String?  @db.VarChar(500)
+
+  // Metrics (denormalized counters for performance)
+  promptCount     Int     @default(0)
+  followersCount  Int     @default(0)
+  followingCount  Int     @default(0)
+  reputationScore Int     @default(0)
+
+  // Soft Delete
+  deletedOn     DateTime?
+  deletedById   String?
+  deletedBy     User?     @relation("ProfileDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn     DateTime  @default(now())
+  createdById   String?
+  createdBy     User?     @relation("ProfileCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn    DateTime  @updatedAt
+  modifiedById  String?
+  modifiedBy    User?     @relation("ProfileModifiedBy", fields: [modifiedById], references: [id])
+
+  @@index([userId])
+  @@index([deletedOn])
+  @@index([createdOn])
+}
+
+model UserFollow {
+  id           String   @id @default(uuid())
+
+  followerId   String
+  followingId  String
+
+  follower     User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following    User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdOn    DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Role {
+  id            String   @id @default(uuid())
+
+  name          String   @unique @db.VarChar(100)
+  code          String   @unique @db.VarChar(100)
+  description   String?  @db.VarChar(255)
+
+  isSystem      Boolean  @default(false) // cannot be deleted if true
+  isActive      Boolean  @default(true)
+
+  // Soft Delete
+  deletedOn     DateTime?
+  deletedById   String?
+  deletedBy     User?    @relation("RoleDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn     DateTime @default(now())
+  createdById   String?
+  createdBy     User?    @relation("RoleCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn    DateTime @updatedAt
+  modifiedById  String?
+  modifiedBy    User?    @relation("RoleModifiedBy", fields: [modifiedById], references: [id])
+
+  // Relations
+  userRoles         UserRoleMap[]
+  rolePermissions   RolePermissionMap[]
+  roleMenus         RoleMenuMap[]
+
+  @@index([deletedOn])
+  @@index([isActive])
+}
+
+model Permission {
+  id            String   @id @default(uuid())
+
+  name          String   @unique @db.VarChar(150)
+  code          String   @unique @db.VarChar(150)
+  description   String?  @db.VarChar(255)
+
+  module        String?  @db.VarChar(100) // optional grouping
+
+  isSystem      Boolean  @default(false)
+  isActive      Boolean  @default(true)
+
+  // Soft Delete
+  deletedOn     DateTime?
+  deletedById   String?
+  deletedBy     User?    @relation("PermissionDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn     DateTime @default(now())
+  createdById   String?
+  createdBy     User?    @relation("PermissionCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn    DateTime @updatedAt
+  modifiedById  String?
+  modifiedBy    User?    @relation("PermissionModifiedBy", fields: [modifiedById], references: [id])
+
+  rolePermissions RolePermissionMap[]
+  menus     Menu[]   // <-- REQUIRED opposite side
+
+  @@index([deletedOn])
+  @@index([isActive])
+}
+
+model UserRoleMap {
+  id        String   @id @default(uuid())
+
+  userId    String
+  roleId    String
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  assignedOn DateTime @default(now())
+  assignedById String?
+  assignedBy  User?   @relation("UserRoleAssignedBy", fields: [assignedById], references: [id])
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+model RolePermissionMap {
+  id            String   @id @default(uuid())
+
+  roleId        String
+  permissionId  String
+
+  role          Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission    Permission @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+
+  assignedOn    DateTime @default(now())
+  assignedById  String?
+  assignedBy    User?    @relation("RolePermissionAssignedBy", fields: [assignedById], references: [id])
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model Menu {
+  id            String   @id @default(uuid())
+
+  name          String   @db.VarChar(150)
+  code          String   @unique @db.VarChar(150)
+  description   String?  @db.VarChar(255)
+
+  path          String?  @db.VarChar(255)  // frontend route
+  icon          String?  @db.VarChar(100)
+  order         Int      @default(0)
+
+  isVisible     Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  isSystem      Boolean  @default(false)
+
+  // Hierarchy (Self Relation)
+  parentId      String?
+  parent        Menu?    @relation("MenuHierarchy", fields: [parentId], references: [id])
+  children      Menu[]   @relation("MenuHierarchy")
+
+  // Optional permission binding
+  permissionId  String?
+  permission    Permission? @relation(fields: [permissionId], references: [id], onDelete: SetNull)
+
+  // Soft Delete
+  deletedOn     DateTime?
+  deletedById   String?
+  deletedBy     User?    @relation("MenuDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn     DateTime @default(now())
+  createdById   String?
+  createdBy     User?    @relation("MenuCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn    DateTime @updatedAt
+  modifiedById  String?
+  modifiedBy    User?    @relation("MenuModifiedBy", fields: [modifiedById], references: [id])
+
+  roleMenus     RoleMenuMap[]
+
+  @@index([parentId])
+  @@index([deletedOn])
+  @@index([isActive])
+}
+
+model RoleMenuMap {
+  id        String   @id @default(uuid())
+
+  roleId    String
+  menuId    String
+
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  menu      Menu     @relation(fields: [menuId], references: [id], onDelete: Restrict)
+
+  assignedOn  DateTime @default(now())
+  assignedById String?
+  assignedBy   User?   @relation("RoleMenuAssignedBy", fields: [assignedById], references: [id])
+
+  @@unique([roleId, menuId])
+  @@index([roleId])
+  @@index([menuId])
+}
+
+model Category {
+  id            String   @id @default(uuid())
+
+  name          String   @db.VarChar(150)
+  slug          String   @unique @db.VarChar(180)
+
+  description   String?  @db.VarChar(500)
+
+  // Hierarchy (optional but future-proof)
+  parentId      String?
+  parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children      Category[] @relation("CategoryHierarchy")
+
+  isActive      Boolean  @default(true)
+  isSystem      Boolean  @default(false)
+
+  // Soft Delete
+  deletedOn     DateTime?
+  deletedById   String?
+  deletedBy     User?    @relation("CategoryDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn     DateTime @default(now())
+  createdById   String?
+  createdBy     User?    @relation("CategoryCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn    DateTime @updatedAt
+  modifiedById  String?
+  modifiedBy    User?    @relation("CategoryModifiedBy", fields: [modifiedById], references: [id])
+
+  // Relations
+  prompts       Prompt[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@index([deletedOn])
+  @@index([isActive])
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+
+  // Core
+  name        String   @db.VarChar(50)
+  slug        String   @unique @db.VarChar(60)
+  description String?  @db.VarChar(255)
+  status      TagStatus @default(PENDING)
+
+  // Analytics (optional but smart)
+  promptCount Int      @default(0)
+
+  // Soft Delete
+  deletedOn   DateTime?
+  deletedById String?
+  deletedBy   User?    @relation("TagDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn   DateTime @default(now())
+  createdById String?
+  createdBy   User?    @relation("TagCreatedBy", fields: [createdById], references: [id])
+
+  modifiedOn  DateTime @updatedAt
+  modifiedById String?
+  modifiedBy  User?    @relation("TagModifiedBy", fields: [modifiedById], references: [id])
+
+  // Relations
+  prompts     PromptTag[]
+
+  @@index([slug, deletedOn])
+  @@index([deletedOn])
+  @@index([createdOn])
+}
+
+enum TagStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PromptTag {
+  id        String   @id @default(uuid())
+
+  promptId  String
+  tagId     String
+
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+  tag       Tag      @relation(fields: [tagId], references: [id])
+
+  createdOn DateTime @default(now())
+
+  @@unique([promptId, tagId])
+  @@index([tagId])
+  @@index([promptId])
+}
+
+model Prompt {
+  id              String   @id @default(uuid())
+
+  // Core Content
+  title           String   @db.VarChar(255)
+  slug            String   @unique @db.VarChar(300)
+
+  shortDescription String? @db.VarChar(500)
+  description     String?  @db.Text
+  promptText      String   @db.Text
+
+  imageUrl        String?  @db.VarChar(500)
+
+  // SEO
+  metaTitle       String?  @db.VarChar(255)
+  metaDescription String?  @db.VarChar(500)
+
+  // Classification
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+
+  modelType       AIModelType @default(OTHER)
+
+  // Engagement Counters (Denormalized)
+  viewsCount      Int      @default(0)
+  likesCount      Int      @default(0)
+  copiesCount     Int      @default(0)
+  favoritesCount Int @default(0)
+  commentsCount   Int      @default(0)
+  reportsCount    Int      @default(0)
+
+  // Moderation
+  status          PromptStatus @default(DRAFT)
+  rejectionReason String?      @db.VarChar(500)
+
+  featured        Boolean  @default(false)
+
+  // Author
+  createdById     String
+  createdBy       User @relation("PromptCreatedBy", fields: [createdById], references: [id])
+
+  // Soft Delete
+  deletedOn       DateTime?
+  deletedById     String?
+  deletedBy       User?    @relation("PromptDeletedBy", fields: [deletedById], references: [id])
+
+  // Auditing
+  createdOn       DateTime @default(now())
+  modifiedOn      DateTime @updatedAt
+  modifiedById    String?
+  modifiedBy      User?    @relation("PromptModifiedBy", fields: [modifiedById], references: [id])
+
+  // Relations
+  tags            PromptTag[]
+  likes           PromptLike[]
+  favorites       PromptFavorite[]
+
+  tips            PromptTip[]
+  variations      PromptVariation[]
+  moderationLogs  PromptModerationLog[]
+
+  // Comments
+  comments            PromptComment[]
+
+  // Comment likes via comments
+  // (no direct relation needed here)
+
+  // Views
+  views               PromptView[]
+
+  // Trending snapshots
+  trendingSnapshots   PromptTrendingSnapshot[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([status])
+  @@index([likesCount])
+  @@index([viewsCount])
+  @@index([createdOn])
+  @@index([deletedOn])
+  @@index([slug, deletedOn, status]) //Public prompt page
+  @@index([status, deletedOn, likesCount]) //Trending queries
+  @@fulltext([title, description, promptText])
+}
+
+enum PromptStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum AIModelType {
+  DALL_E
+  STABLE_DIFFUSION
+  MIDJOURNEY
+  GEMINI
+  OTHER
+}
+
+model PromptModerationLog {
+  id          String   @id @default(uuid())
+  promptId    String
+  prompt      Prompt   @relation(fields: [promptId], references: [id])
+
+  action      ModerationAction  // AUTO_APPROVED, AUTO_REJECTED, MANUAL_APPROVED, MANUAL_REJECTED, FLAGGED
+  reason      String?           // why it was flagged/rejected
+  confidence  Float?            // AI classifier confidence score (0-1)
+  triggeredBy String?           // which rule/classifier triggered this
+  reviewedById String?          // admin who reviewed (null if auto)
+
+  createdOn   DateTime @default(now())
+
+  @@index([promptId])
+  @@index([action])
+}
+
+enum ModerationAction {
+  AUTO_APPROVED
+  AUTO_REJECTED
+  MANUAL_APPROVED
+  MANUAL_REJECTED
+  FLAGGED_FOR_REVIEW
+}
+
+model PromptTip {
+  id        String   @id @default(uuid())
+  promptId  String
+  content   String   @db.Text
+
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+
+  createdOn DateTime @default(now())
+
+  @@index([promptId])
+}
+
+model PromptVariation {
+  id        String   @id @default(uuid())
+  promptId  String
+  content   String   @db.Text
+
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+
+  createdOn DateTime @default(now())
+
+  @@index([promptId])
+}
+
+model PromptLike {
+  id        String   @id @default(uuid())
+
+  promptId  String
+  userId    String
+
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  createdOn DateTime @default(now())
+
+  // Optional soft delete (only if you want unlike history)
+  deletedOn DateTime?
+
+  @@unique([promptId, userId])
+  @@index([promptId])
+  @@index([userId])
+  @@index([deletedOn])
+}
+
+model PromptFavorite {
+  id        String   @id @default(uuid())
+
+  promptId  String
+  userId    String
+
+  prompt    Prompt   @relation(fields: [promptId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  createdOn DateTime @default(now())
+
+  // Optional soft delete
+  deletedOn DateTime?
+
+  @@unique([promptId, userId])
+  @@index([userId])
+  @@index([promptId])
+  @@index([deletedOn])
+}
+
+model PromptComment {
+  id          String   @id @default(uuid())
+
+  // Core Relations
+  promptId    String
+  userId      String
+  parentId    String?
+
+  prompt      Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      PromptComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     PromptComment[] @relation("CommentReplies")
+
+  // Content
+  content     String   @db.VarChar(2000)
+
+  // Moderation
+  status      CommentStatus @default(VISIBLE)
+  edited      Boolean  @default(false)
+
+  // Counters
+  likesCount  Int      @default(0)
+  repliesCount Int     @default(0)
+
+  // Soft Delete
+  deletedOn   DateTime?
+  deletedById String?
+  deletedBy   User?    @relation("CommentDeletedBy", fields: [deletedById], references: [id])
+
+  // Audit
+  createdOn   DateTime @default(now())
+  modifiedOn  DateTime @updatedAt
+
+  likes CommentLike[]
+
+  // Indexing for performance
+  @@index([promptId, deletedOn])
+  @@index([userId])
+  @@index([parentId])
+  @@index([status])
+}
+
+enum CommentStatus {
+  VISIBLE
+  HIDDEN
+  DELETED
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+
+  commentId String
+  userId    String
+
+  comment   PromptComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdOn DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([userId])
+}
+
+model Notification {
+  id            String   @id @default(uuid())
+
+  // Who receives the notification
+  userId        String
+  user          User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Who triggered the action (nullable for system notifications)
+  actorId       String?
+  actor         User?    @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  // Type of notification
+  type          NotificationType
+
+  // Generic reference system
+  referenceId   String?
+  referenceType NotificationReferenceType?
+
+  // Optional message override (for system/custom messages)
+  message       String?  @db.VarChar(500)
+
+  // State
+  isRead        Boolean  @default(false)
+  readAt        DateTime?
+
+  // Soft Delete (rarely needed, but safe)
+  deletedOn     DateTime?
+
+  // Audit
+  createdOn     DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdOn])
+  @@index([referenceId])
+}
+
+enum NotificationType {
+  FOLLOW
+  PROMPT_LIKE
+  PROMPT_COMMENT
+  COMMENT_REPLY
+  PROMPT_APPROVED
+  PROMPT_REJECTED
+  SYSTEM
+}
+
+enum NotificationReferenceType {
+  PROMPT
+  COMMENT
+  USER
+}
+
+model PromptView {
+  id         String   @id @default(uuid())
+
+  promptId   String
+  userId     String?     // nullable for anonymous users
+  sessionId  String?     @db.VarChar(100)
+  ipHash     String?     @db.VarChar(128)
+  userAgent  String?     @db.VarChar(300)
+
+  prompt     Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdOn  DateTime @default(now())
+
+  @@index([promptId, createdOn])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([ipHash])
+}
+
+model PromptTrendingSnapshot {
+  id            String   @id @default(uuid())
+
+  promptId      String
+  prompt        Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  // Snapshot metadata
+  snapshotDate  DateTime      // e.g. start of day (UTC)
+  windowType    TrendingWindowType
+
+  // Calculated metrics (stored at time of calculation)
+  score         Float
+  rank          Int
+
+  viewsCount    Int
+  likesCount    Int
+  commentsCount Int
+  favoritesCount Int
+
+  createdOn     DateTime @default(now())
+
+  @@unique([promptId, snapshotDate, windowType])
+  @@index([snapshotDate, windowType, rank])
+  @@index([windowType, score])
+}
+
+enum TrendingWindowType {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+// Add to schema.prisma
+model SeoOverride {
+  id          String   @id @default(uuid())
+
+  // What page this applies to
+  // Examples:
+  //   "prompt:cyberpunk-dragon-cityscape"
+  //   "listing:prompts"
+  //   "listing:prompts:category:fantasy"
+  //   "listing:prompts:tag:dragons"
+  //   "profile:pankaj2"
+  pageKey     String   @unique
+
+  // All nullable — only override what you want
+  // If null, backend falls back to auto-generated value
+  title       String?  @db.VarChar(70)
+  description String?  @db.VarChar(160)
+  keywords    String?  @db.VarChar(500)  // comma-separated
+  image       String?  @db.VarChar(500)
+  noIndex     Boolean  @default(false)   // block page from Google
+
+  createdOn    DateTime @default(now())
+  modifiedOn   DateTime @updatedAt
+  modifiedById String?
+  modifiedBy    User?     @relation("SeoModifiedBy", fields: [modifiedById], references: [id])
+
+
+  @@index([pageKey])
+}
