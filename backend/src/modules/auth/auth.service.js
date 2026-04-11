@@ -30,7 +30,10 @@ const generateTokenPair = (user) => {
   };
 };
 
-export const register = async ({ username, email, password }) => {
+export const register = async (
+  { username, email, password },
+  { ip, userAgent } = {},
+) => {
   const [existingEmail, existingUsername] = await Promise.all([
     authRepo.findUserByEmail(email),
     authRepo.findUserByUsername(username),
@@ -62,7 +65,27 @@ export const register = async ({ username, email, password }) => {
     return newUser;
   });
 
-  return omit(user, ["password"]);
+  await authRepo.updateUserLoginMeta(user.id, ip, userAgent);
+
+  const { accessToken, refreshToken } = generateTokenPair(user);
+  const refreshTokenHash = hashToken(refreshToken);
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await authRepo.createSession({
+    userId: user.id,
+    refreshTokenHash,
+    userAgent,
+    ipAddress: ip,
+    expiresAt,
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+    user: omit(user, ["password"]),
+  };
 };
 
 export const login = async ({ email, password }, { ip, userAgent }) => {
@@ -75,17 +98,26 @@ export const login = async ({ email, password }, { ip, userAgent }) => {
   if (user.status === UserStatus.SUSPENDED)
     throw ApiError.forbidden(MSG.AUTH.ACCOUNT_SUSPENDED);
 
-  if (user.status === UserStatus.LOCKED && user.lockedUntil > new Date()) {
-    const minutes = Math.ceil((user.lockedUntil - Date.now()) / 60000);
-    throw ApiError.forbidden(
-      `${MSG.AUTH.ACCOUNT_LOCKED} Try again in ${minutes} minute(s).`,
-    );
+  // When lock has expired, reset the user back to ACTIVE before proceeding
+  if (user.status === UserStatus.LOCKED) {
+    if (user.lockedUntil > new Date()) {
+      const minutes = Math.ceil((user.lockedUntil - Date.now()) / 60000);
+      throw ApiError.forbidden(
+        `${MSG.AUTH.ACCOUNT_LOCKED} Try again in ${minutes} minute(s).`,
+      );
+    }
+    // Lock expired — silently restore to ACTIVE and continue login
+    await authRepo.unlockUser(user.id);
+    user.status = UserStatus.ACTIVE;
+    user.failedLoginCount = 0;
   }
 
   const isPasswordValid = await comparePassword(password, user.password);
   if (!isPasswordValid) {
-    await authRepo.incrementFailedLogin(user.id);
-    if (user.failedLoginCount + 1 >= MAX_FAILED_LOGINS) {
+    const updated = await authRepo.incrementFailedLogin(user.id);
+    const attempts = updated.failedLoginCount; // return updated count from repo
+
+    if (attempts >= MAX_FAILED_LOGINS) {
       const lockUntil = new Date(
         Date.now() + LOCK_DURATION_MINUTES * 60 * 1000,
       );
@@ -94,7 +126,11 @@ export const login = async ({ email, password }, { ip, userAgent }) => {
         `Account locked due to too many failed attempts. Try again in ${LOCK_DURATION_MINUTES} minutes.`,
       );
     }
-    throw ApiError.unauthorized(MSG.AUTH.INVALID_CREDENTIALS);
+
+    const remaining = MAX_FAILED_LOGINS - attempts;
+    throw ApiError.unauthorized(
+      `${MSG.AUTH.INVALID_CREDENTIALS} ${remaining} attempts remaining.`,
+    );
   }
 
   await authRepo.updateUserLoginMeta(user.id, ip, userAgent);

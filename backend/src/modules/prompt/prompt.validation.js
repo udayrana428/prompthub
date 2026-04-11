@@ -36,9 +36,6 @@ export const createPromptSchema = Joi.object({
   tags: Joi.array().items(Joi.string().trim()).max(10).default([]),
   tips: Joi.array().items(Joi.string().trim()).default([]),
   variations: Joi.array().items(Joi.string().trim()).default([]),
-
-  metaTitle: Joi.string().max(255).optional().allow(""),
-  metaDescription: Joi.string().max(500).optional().allow(""),
 });
 
 export const updatePromptSchema = Joi.object({
@@ -51,8 +48,6 @@ export const updatePromptSchema = Joi.object({
   tags: Joi.array().items(Joi.string().trim()).max(10),
   tips: Joi.array().items(Joi.string().trim()),
   variations: Joi.array().items(Joi.string().trim()),
-  metaTitle: Joi.string().max(255).allow(""),
-  metaDescription: Joi.string().max(500).allow(""),
 })
   .min(1)
   .messages({

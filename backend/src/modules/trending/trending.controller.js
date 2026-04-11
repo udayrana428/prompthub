@@ -14,6 +14,7 @@ export const getTrending = asyncHandler(async (req, res) => {
   const data = await trendingService.getTrending(
     window.toUpperCase(),
     Math.min(parseInt(limit, 10) || 20, 50),
+    req.user?.id,
   );
 
   ApiResponse.success(

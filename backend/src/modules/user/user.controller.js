@@ -9,7 +9,10 @@ export const listUsers = asyncHandler(async (req, res) => {
 });
 
 export const getPublicProfile = asyncHandler(async (req, res) => {
-  const user = await userService.getPublicProfile(req.params.slug);
+  const user = await userService.getPublicProfile(
+    req.params.slug,
+    req.user?.id,
+  );
   ApiResponse.success(res, { user }, MSG.USER.FETCHED);
 });
 

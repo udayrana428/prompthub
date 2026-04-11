@@ -1,4 +1,5 @@
 import * as userRepo from "./user.repository.js";
+import * as socialRepo from "../social/social.repository.js";
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -13,10 +14,21 @@ import {
 } from "../../shared/utils/pagination.js";
 import { MSG } from "../../constants/messages.js";
 
-export const getPublicProfile = async (slug) => {
+export const getPublicProfile = async (slug, viewerId) => {
   const user = await userRepo.findUserBySlug(slug);
   if (!user) throw ApiError.notFound(MSG.USER.NOT_FOUND);
-  return user;
+
+  const isFollowedByViewer =
+    !!viewerId &&
+    viewerId !== user.id &&
+    !!(await socialRepo.findFollow(viewerId, user.id));
+  const isOwnedByViewer = viewerId === user.id;
+
+  return {
+    ...user,
+    isFollowedByViewer,
+    isOwnedByViewer,
+  };
 };
 
 export const listUsers = async (query) => {

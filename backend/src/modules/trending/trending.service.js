@@ -1,48 +1,66 @@
 import * as trendingRepo from "./trending.repository.js";
 
-/**
- * Weighted trending score formula:
- *   score = views*0.3 + likes*0.4 + comments*0.2 + favorites*0.1
- *   Recency boost: divide by log2(hoursOld + 2) so newer prompts rank higher
- */
-const calculateScore = (prompt, windowHours) => {
-  const raw =
-    prompt.viewsCount * 0.3 +
-    prompt.likesCount * 0.4 +
-    prompt.commentsCount * 0.2 +
-    prompt.favoritesCount * 0.1;
+const WINDOW_HOURS = { DAILY: 24, WEEKLY: 168, MONTHLY: 720 };
 
-  // Recency decay based on window age (normalize to hours)
-  const decay = Math.log2(windowHours + 2);
-  return raw / decay;
+const getWindowStart = (windowType) => {
+  const since = new Date();
+  since.setTime(since.getTime() - WINDOW_HOURS[windowType] * 60 * 60 * 1000);
+  return since;
 };
 
-export const getTrending = async (windowType = "DAILY", limit = 20) => {
-  return trendingRepo.getTopPromptsByWindow(windowType, limit);
+/**
+ * Score uses windowed counts (not lifetime totals).
+ * Weights: views are low-signal, likes/favorites are high-signal.
+ * No time-decay here — the window itself IS the decay mechanism.
+ * A prompt only appears if it had activity in this window.
+ */
+const calculateScore = ({
+  viewsCount,
+  likesCount,
+  commentsCount,
+  favoritesCount,
+}) =>
+  viewsCount * 0.3 +
+  likesCount * 1.5 +
+  commentsCount * 1.0 +
+  favoritesCount * 1.2;
+
+export const getTrending = async (
+  windowType = "DAILY",
+  limit = 20,
+  viewerId = null,
+) => {
+  return trendingRepo.getTopPromptsByWindow(windowType, limit, viewerId);
 };
 
 export const computeAndSaveSnapshots = async (windowType) => {
-  const windowHoursMap = { DAILY: 24, WEEKLY: 168, MONTHLY: 720 };
-  const daysMap = { DAILY: 1, WEEKLY: 7, MONTHLY: 30 };
+  const since = getWindowStart(windowType);
 
-  const since = new Date();
-  since.setDate(since.getDate() - daysMap[windowType]);
+  // Get windowed activity counts (the fix — not lifetime counters)
+  const activityMap =
+    await trendingRepo.getWindowedActivityForAllPrompts(since);
 
-  const prompts = await trendingRepo.getApprovedPromptsForSnapshot(since);
+  if (activityMap.size === 0) return 0;
 
-  const scored = prompts
-    .map((p) => ({
-      ...p,
-      score: calculateScore(p, windowHoursMap[windowType]),
+  // Score and rank
+  const scored = [...activityMap.entries()]
+    .map(([promptId, counts]) => ({
+      promptId,
+      ...counts,
+      score: calculateScore(counts),
     }))
+    .filter((p) => p.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  const snapshotDate = new Date();
-  snapshotDate.setHours(0, 0, 0, 0);
+  // Always UTC midnight — no local timezone drift
+  const now = new Date();
+  const snapshotDate = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
 
   const upserts = scored.map((p, index) =>
     trendingRepo.upsertSnapshot({
-      promptId: p.id,
+      promptId: p.promptId,
       snapshotDate,
       windowType,
       score: p.score,

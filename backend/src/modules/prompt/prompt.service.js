@@ -189,6 +189,7 @@ export const getPromptForEdit = async (promptId, userId) => {
 // src/modules/prompt/prompt.service.js
 
 export const createPrompt = async (data, authorId, imageFile) => {
+  if (!imageFile) throw ApiError.badRequest(MSG.PROMPT.IMAGE_REQUIRED);
   // ── Layer 1: Synchronous blocklist (BEFORE any DB or file operations) ─────────
   const textToScreen = `${data.title} ${data.shortDescription ?? ""} ${data.description ?? ""} ${data.promptText}`;
   const screenResult = screenText(textToScreen);
@@ -239,8 +240,8 @@ export const createPrompt = async (data, authorId, imageFile) => {
           imageUrl,
           categoryId: data.categoryId,
           modelType: data.modelType || "OTHER",
-          metaTitle: data.metaTitle,
-          metaDescription: data.metaDescription,
+          metaTitle: data.title,
+          metaDescription: data.description,
           status: PromptStatus.PENDING,
           createdById: authorId,
           ...(data.tips?.length && {
@@ -289,6 +290,9 @@ export const updatePrompt = async (promptId, userId, data, imageFile) => {
   const existing = await promptRepo.findPromptById(promptId);
   if (!existing) throw ApiError.notFound(MSG.PROMPT.NOT_FOUND);
   if (existing.createdById !== userId) throw ApiError.forbidden();
+  if (!existing.imageUrl && !imageFile) {
+    throw ApiError.badRequest(MSG.PROMPT.IMAGE_REQUIRED);
+  }
 
   const contentChanged =
     (data.title && data.title !== existing.title) ||
@@ -340,6 +344,8 @@ export const updatePrompt = async (promptId, userId, data, imageFile) => {
           tx,
           promptId,
         );
+        updateData.metaTitle = data.title;
+        updateData.metaDescription = data.description ?? "";
       }
 
       if (data.promptText) updateData.promptText = data.promptText;
@@ -349,9 +355,6 @@ export const updatePrompt = async (promptId, userId, data, imageFile) => {
       if (data.modelType) updateData.modelType = data.modelType;
       if (data.description !== undefined)
         updateData.description = data.description;
-      if (data.metaTitle !== undefined) updateData.metaTitle = data.metaTitle;
-      if (data.metaDescription !== undefined)
-        updateData.metaDescription = data.metaDescription;
       if (newImageUrl) updateData.imageUrl = newImageUrl;
 
       if (contentChanged) {

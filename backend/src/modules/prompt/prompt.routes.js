@@ -10,7 +10,7 @@ import {
   requireAuth,
   optionalAuth,
 } from "../../middlewares/auth.middleware.js";
-import { upload } from "../../middlewares/multer.middleware.js";
+import { imageUpload } from "../../middlewares/multer.middleware.js";
 
 const router = Router();
 
@@ -28,14 +28,14 @@ router.get("/:slug", optionalAuth, promptController.getPromptBySlug);
 router.post(
   "/",
   requireAuth,
-  upload.single("image"),
+  imageUpload.single("image"),
   validate(createPromptSchema),
   promptController.createPrompt,
 );
 router.patch(
   "/:id",
   requireAuth,
-  upload.single("image"),
+  imageUpload.single("image"),
   validate(updatePromptSchema),
   promptController.updatePrompt,
 );

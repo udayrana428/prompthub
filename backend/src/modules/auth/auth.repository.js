@@ -1,3 +1,4 @@
+import { UserStatus } from "../../constants/enums.js";
 import prisma from "../../db/index.js";
 
 export const findUserByEmail = (email) =>
@@ -79,8 +80,19 @@ export const lockUser = (userId, until) =>
   prisma.user.update({
     where: { id: userId },
     data: {
-      status: "LOCKED",
+      status: UserStatus.LOCKED,
       lockedUntil: until,
+    },
+  });
+
+// auth.repo.js
+export const unlockUser = (userId) =>
+  prisma.user.update({
+    where: { id: userId },
+    data: {
+      status: UserStatus.ACTIVE,
+      failedLoginCount: 0,
+      lockedUntil: null,
     },
   });
 

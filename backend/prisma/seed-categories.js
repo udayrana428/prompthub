@@ -338,8 +338,8 @@ const categories = [
     ],
   },
   {
-    name: "Seasonal & Occasions",
-    slug: "seasonal-occasions",
+    name: "Festival & Occasions",
+    slug: "festival-occasions",
     description:
       "Festival and occasion-specific prompts for Diwali, Holi, Eid, weddings, cricket season, and national celebrations.",
     isSystem: true,

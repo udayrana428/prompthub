@@ -41,6 +41,77 @@ const buildPromptPublicSelect = (viewerId) => ({
   }),
 });
 
+const buildPromptAdminListSelect = {
+  id: true,
+  title: true,
+  slug: true,
+  shortDescription: true,
+  imageUrl: true,
+  modelType: true,
+  viewsCount: true,
+  likesCount: true,
+  favoritesCount: true,
+  commentsCount: true,
+  copiesCount: true,
+  featured: true,
+  status: true,
+  rejectionReason: true,
+  createdOn: true,
+  modifiedOn: true,
+  category: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  },
+  createdBy: {
+    select: {
+      id: true,
+      username: true,
+      slug: true,
+      email: true,
+      profile: {
+        select: {
+          displayName: true,
+          avatarUrl: true,
+        },
+      },
+    },
+  },
+  tags: {
+    select: {
+      tag: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  },
+};
+
+const buildPromptAdminDetailInclude = {
+  category: true,
+  createdBy: {
+    select: {
+      id: true,
+      username: true,
+      slug: true,
+      email: true,
+      profile: true,
+    },
+  },
+  tags: {
+    include: {
+      tag: true,
+    },
+  },
+  tips: true,
+  variations: true,
+};
+
 export const mapPromptViewerState = (prompt) => {
   if (!prompt) return prompt;
 
@@ -67,6 +138,21 @@ export const findPrompts = ({ where, skip, take, orderBy, viewerId }) =>
   });
 
 export const countPrompts = (where) => prisma.prompt.count({ where });
+
+export const findAdminPrompts = ({ where, skip, take, orderBy }) =>
+  prisma.prompt.findMany({
+    where,
+    skip,
+    take,
+    orderBy,
+    select: buildPromptAdminListSelect,
+  });
+
+export const findAdminPromptById = (id) =>
+  prisma.prompt.findFirst({
+    where: { id, deletedOn: null },
+    include: buildPromptAdminDetailInclude,
+  });
 
 export const findPromptBySlug = (slug, viewerId) =>
   prisma.prompt.findFirst({

@@ -26,6 +26,7 @@ export const MSG = {
     FETCHED: "Prompt fetched successfully.",
     LIST_FETCHED: "Prompts fetched successfully.",
     NOT_FOUND: "Prompt not found.",
+    IMAGE_REQUIRED: "Prompt image is required.",
     LIKED: "Prompt liked.",
     UNLIKED: "Prompt unliked.",
     FAVORITED: "Prompt added to favorites.",

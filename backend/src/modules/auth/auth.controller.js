@@ -22,8 +22,20 @@ const clearTokenCookies = (res) => {
 };
 
 export const register = asyncHandler(async (req, res) => {
-  const user = await authService.register(req.body);
-  ApiResponse.created(res, { user }, MSG.AUTH.REGISTER_SUCCESS);
+  const ip = requestIp.getClientIp(req);
+  const userAgent = req.headers["user-agent"];
+
+  const { accessToken, refreshToken, user } = await authService.register(
+    req.body,
+    { ip, userAgent },
+  );
+
+  setTokenCookies(res, accessToken, refreshToken);
+  ApiResponse.created(
+    res,
+    { user, accessToken },
+    MSG.AUTH.REGISTER_SUCCESS,
+  );
 });
 
 export const login = asyncHandler(async (req, res) => {

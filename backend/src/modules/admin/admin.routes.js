@@ -8,6 +8,7 @@ import userRoleRoutes from "./access-control/user-role/user-role.routes.js";
 
 import categoryRoutes from "./category/admin.category.routes.js";
 import tagRoutes from "./tag/admin.tag.routes.js";
+import promptRoutes from "./prompt/admin.prompt.routes.js";
 
 const adminRoutes = Router();
 
@@ -21,5 +22,6 @@ adminRoutes.use("/access-control/users", userRoleRoutes);
 
 adminRoutes.use("/categories", categoryRoutes);
 adminRoutes.use("/tags", tagRoutes);
+adminRoutes.use("/prompts", promptRoutes);
 
 export default adminRoutes;
