@@ -3,8 +3,13 @@ export const queryKeys = {
     all: ["prompts"] as const,
     list: (params: object) => ["prompts", "list", params] as const,
     trending: (params: object = {}) => ["prompts", "trending", params] as const,
+    latest: (params: object = {}) => ["prompts", "latest", params] as const,
     detail: (slug: string) => ["prompts", "detail", slug] as const,
     byUser: (userId: string) => ["prompts", "user", userId] as const,
+  },
+  trending: {
+    all: ["trending"] as const,
+    list: (params: object = {}) => ["trending", "list", params] as const,
   },
   tags: {
     all: ["tags"] as const,
@@ -17,6 +22,13 @@ export const queryKeys = {
   user: {
     profile: (username: string) => ["user", "profile", username] as const,
     me: () => ["user", "me"] as const,
+  },
+  social: {
+    all: ["social"] as const,
+    followers: (userId: string, params: object = {}) =>
+      ["social", "followers", userId, params] as const,
+    following: (userId: string, params: object = {}) =>
+      ["social", "following", userId, params] as const,
   },
   admin: {
     users: (params: object) => ["admin", "users", params] as const,

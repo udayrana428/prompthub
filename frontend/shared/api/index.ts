@@ -1,5 +1,8 @@
 export * as promptApi from "./modules/prompt.api";
+export * as trendingApi from "./modules/trending.api";
 export * as authApi from "./modules/auth.api";
 export * as categoryApi from "./modules/category.api";
 export * as commentApi from "./modules/comment.api";
 export * as userApi from "./modules/user.api";
+export * as socialApi from "./modules/social.api";
+export { adminPromptApi } from "./modules/admin-prompt.api";

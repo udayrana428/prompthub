@@ -29,13 +29,13 @@ const categoryIcons = [
 
 export function CategoriesGrid() {
   const { data, isLoading, isError } = useQuery({
-    queryKey: queryKeys.categories.list({ limit: 8, isActive: true }),
+    queryKey: queryKeys.categories.list({ limit: 12, isActive: true }),
     queryFn: () =>
-      categoryApi.client.listCategories({ limit: 8, isActive: true }),
+      categoryApi.client.listCategories({ limit: 12, isActive: true }),
     staleTime: 1000 * 60 * 10,
   });
 
-  const categories = data?.data.data ?? [];
+  const categories = (data?.data.data ?? []).slice(0, 8);
 
   return (
     <section className="py-16 lg:py-24">
@@ -69,8 +69,8 @@ export function CategoriesGrid() {
                   key={category.id}
                   href={`/prompts?category=${category.slug}`}
                 >
-                  <Card className="group border-border bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
-                    <CardContent className="p-6">
+                  <Card className="group border-border bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-lg h-full flex flex-col">
+                    <CardContent className="p-6 flex flex-col h-full">
                       <div className="mb-4 flex items-center justify-between">
                         <div
                           className={`rounded-lg bg-background p-3 ${config.color}`}
@@ -80,13 +80,13 @@ export function CategoriesGrid() {
                         <span className="text-sm font-medium text-muted-foreground">
                           {category.children.length > 0
                             ? `${category.children.length} subcats`
-                            : "Active"}
+                            : ""}
                         </span>
                       </div>
                       <h3 className="mb-2 font-semibold text-card-foreground transition-colors group-hover:text-primary">
                         {category.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">
                         {category.description ||
                           "Browse prompts available in this category."}
                       </p>

@@ -32,7 +32,8 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { ThemeToggle } from "@/shared/components/common/theme-toggle";
+import { ThemeToggle } from "@/shared/components/common/common-components/theme-toggle";
+import { ROUTES } from "@/shared/lib/routes";
 
 export function Header() {
   const router = useRouter();
@@ -84,13 +85,13 @@ export function Header() {
       return (
         <>
           <Button asChild variant="ghost" size="sm" className="hidden md:flex">
-            <Link href="/login">
+            <Link href={ROUTES.LOGIN}>
               <User className="mr-2 h-4 w-4" />
               Sign In
             </Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/login">Get Started</Link>
+            <Link href={ROUTES.SIGNUP}>Create Account</Link>
           </Button>
         </>
       );
@@ -98,16 +99,16 @@ export function Header() {
 
     return (
       <>
-        <Button asChild variant="ghost" size="sm" className="hidden md:flex">
+        {/* <Button asChild variant="ghost" size="sm" className="hidden md:flex">
           <Link href="/account">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             My Account
           </Link>
-        </Button>
+        </Button> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-10 gap-3 px-2">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className="h-10 gap-3 px-2 group">
+              <Avatar className="h-8 w-8 group-hover:text-foreground">
                 <AvatarImage src={avatarUrl} alt={displayName} />
                 <AvatarFallback>{avatarFallback}</AvatarFallback>
               </Avatar>
@@ -155,6 +156,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              className="w-full"
               onSelect={(event) => {
                 event.preventDefault();
                 void handleLogout();
@@ -215,6 +217,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              className="w-full"
               onSelect={(event) => {
                 event.preventDefault();
                 void handleLogout();
@@ -227,13 +230,13 @@ export function Header() {
         ) : (
           <>
             <DropdownMenuItem asChild>
-              <Link href="/login" className="flex items-center">
+              <Link href={ROUTES.LOGIN} className="flex items-center">
                 <User className="mr-2 h-4 w-4" />
                 Sign In
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/login">Get Started</Link>
+              <Link href={ROUTES.SIGNUP}>Create Account</Link>
             </DropdownMenuItem>
           </>
         )}

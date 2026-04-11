@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
 import "../styles/globals.css";
+import "react-data-table-component-extensions/dist/index.css";
 import type React from "react";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/shared/components/common/theme-provider";
@@ -11,7 +12,7 @@ import { AppToastProvider } from "@/shared/lib/toastify/app-toast-provider";
 import { ReactQueryProvider } from "@/shared/lib/react-query/provider";
 import { ReduxProvider } from "@/shared/redux/provider";
 import { defaultMetadata } from "@/shared/lib/seo";
-import { PageLoader } from "@/shared/components/common/page-loader";
+import { PageLoader } from "@/shared/components/common/common-components/page-loader";
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
 // Root metadata — provides defaults for all pages

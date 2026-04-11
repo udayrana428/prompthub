@@ -31,11 +31,22 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Routes that should NEVER trigger a token refresh on 401
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/refresh"];
+
+const isAuthRoute = (url?: string) =>
+  AUTH_ROUTES.some((route) => url?.includes(route));
+
 apiClient.interceptors.response.use(
   (response) => response.data, // unwrap — all api fns get data directly
 
   async (error) => {
     const original = error.config;
+
+    // ✅ Skip refresh entirely for auth routes — just reject with the error
+    if (error.response?.status === 401 && isAuthRoute(original?.url)) {
+      return Promise.reject(error.response?.data ?? error);
+    }
 
     if (error.response?.status === 401 && !original._retry) {
       if (isRefreshing) {

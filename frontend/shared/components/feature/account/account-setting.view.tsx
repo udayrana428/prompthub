@@ -2,11 +2,14 @@
 
 import React from "react";
 import { Form, Formik } from "formik";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
+import { authApi } from "@/shared/api";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
@@ -15,7 +18,10 @@ import {
   FormikTextareaField,
 } from "@/shared/components/ui/formik-field";
 import { createFormikValidator } from "@/shared/lib/formik";
+import { ROUTES } from "@/shared/lib/routes";
 import { appToast } from "@/shared/lib/toastify/toast";
+import { useAppDispatch } from "@/shared/redux/hooks";
+import { clearAuth, setAccessToken } from "@/shared/redux/slices/auth.slice";
 import {
   useCurrentAuthUser,
   useCurrentUserProfile,
@@ -48,7 +54,29 @@ const settingsSchema = z.object({
   bio: z.string().trim().max(500, "Bio must be 500 characters or fewer."),
 });
 
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required."),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters.")
+      .regex(/[a-z]/, "Password must include a lowercase letter.")
+      .regex(/[A-Z]/, "Password must include an uppercase letter.")
+      .regex(/\d/, "Password must include a number."),
+    confirmNewPassword: z.string().min(1, "Please confirm your new password."),
+  })
+  .refine((values) => values.currentPassword !== values.newPassword, {
+    message: "New password must be different from your current password.",
+    path: ["newPassword"],
+  })
+  .refine((values) => values.newPassword === values.confirmNewPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmNewPassword"],
+  });
+
 const AccountSettingPage = () => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const user = useCurrentAuthUser();
   const { data: profileResponse } = useCurrentUserProfile();
   const saveSettings = useSaveAccountSettings();
@@ -89,7 +117,7 @@ const AccountSettingPage = () => {
                 });
                 appToast.success("Your account settings have been updated.");
               } catch (err: any) {
-                if (err?.errors) {
+                if (err?.errors?.length > 0) {
                   err?.errors[0]?.message &&
                     appToast.error(err?.errors[0]?.message);
                 } else if (err?.message) {
@@ -195,6 +223,129 @@ const AccountSettingPage = () => {
             <Button variant="outline" size="sm" disabled>
               Locked
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Security</CardTitle>
+          <CardDescription>
+            Manage your password and active account sessions.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Formik
+            initialValues={{
+              currentPassword: "",
+              newPassword: "",
+              confirmNewPassword: "",
+            }}
+            validate={createFormikValidator(changePasswordSchema)}
+            onSubmit={async (values, helpers) => {
+              try {
+                await authApi.changePassword({
+                  currentPassword: values.currentPassword,
+                  newPassword: values.newPassword,
+                });
+
+                dispatch(clearAuth());
+                dispatch(setAccessToken({ accessToken: null }));
+                appToast.success(
+                  "Password changed successfully. Please sign in again.",
+                );
+                router.push(ROUTES.LOGIN);
+                router.refresh();
+              } catch (err: any) {
+                if (err?.errors?.length > 0) {
+                  err?.errors[0]?.message &&
+                    appToast.error(err?.errors[0]?.message);
+                } else if (err?.message) {
+                  appToast.error(
+                    err?.message || "We could not change your password.",
+                  );
+                }
+              } finally {
+                helpers.setSubmitting(false);
+              }
+            }}
+          >
+            {({ isSubmitting, resetForm }) => (
+              <Form className="space-y-4" noValidate>
+                <FormikInputField
+                  name="currentPassword"
+                  type="password"
+                  label="Current Password"
+                  placeholder="Enter your current password"
+                />
+                <FormikInputField
+                  name="newPassword"
+                  type="password"
+                  label="New Password"
+                  placeholder="Create a stronger password"
+                  description="Use at least 8 characters with uppercase, lowercase, and a number."
+                />
+                <FormikInputField
+                  name="confirmNewPassword"
+                  type="password"
+                  label="Confirm New Password"
+                  placeholder="Re-enter your new password"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => resetForm()}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Updating..." : "Change Password"}
+                  </Button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+
+          <div className="rounded-lg border border-border p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium text-foreground">
+                  Sign out of all devices
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Revoke every active session linked to your account.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await authApi.logoutAll();
+                    dispatch(clearAuth());
+                    dispatch(setAccessToken({ accessToken: null }));
+                    appToast.success(
+                      "All sessions signed out. Please sign in again.",
+                    );
+                    router.push(ROUTES.LOGIN);
+                    router.refresh();
+                  } catch (err: any) {
+                    if (err?.errors?.length > 0) {
+                      err?.errors[0]?.message &&
+                        appToast.error(err?.errors[0]?.message);
+                    } else if (err?.message) {
+                      appToast.error(
+                        err?.message ||
+                          "We could not sign you out of all devices.",
+                      );
+                    }
+                  }
+                }}
+              >
+                Logout All Devices
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

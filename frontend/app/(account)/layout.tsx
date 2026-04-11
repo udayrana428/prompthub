@@ -3,9 +3,9 @@
 import type React from "react";
 import AccountHeader from "@/shared/components/feature/account/components/account-header";
 import AccountTabs from "@/shared/components/feature/account/components/account-tabs";
-import { Header } from "@/shared/components/common/header";
-import { Footer } from "@/shared/components/common/footer";
-import { PageLoader } from "@/shared/components/common/page-loader";
+import { Header } from "@/shared/components/common/common-components/header";
+import { Footer } from "@/shared/components/common/common-components/footer";
+import { PageLoader } from "@/shared/components/common/common-components/page-loader";
 import { useRequireAuth } from "@/shared/lib/auth";
 
 export default function AccountLayout({

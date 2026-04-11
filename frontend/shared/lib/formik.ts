@@ -50,3 +50,50 @@ export const createFormikValidator =
 
     return errors as FormikErrors<TValues>;
   };
+
+function findFirstErrorKey(errors: any, path = ""): string | null {
+  for (const key in errors) {
+    const value = errors[key];
+    const currentPath = path ? `${path}.${key}` : key;
+
+    if (typeof value === "string") return currentPath;
+
+    if (typeof value === "object" && value !== null) {
+      const nested = findFirstErrorKey(value, currentPath);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
+}
+
+export function scrollToFirstError<T>(errors: FormikErrors<T>, offset = 80) {
+  const firstErrorField = findFirstErrorKey(errors);
+
+  if (!firstErrorField) return;
+
+  const element = document.querySelector(
+    `[name="${firstErrorField}"], #${firstErrorField}`,
+  ) as HTMLElement | null;
+
+  if (!element) return;
+
+  const scrollContainer = element.closest(
+    "[data-radix-dialog-content]",
+  ) as HTMLElement | null;
+
+  const container = scrollContainer || document.documentElement;
+
+  const elementTop =
+    element.getBoundingClientRect().top -
+    container.getBoundingClientRect().top +
+    container.scrollTop -
+    offset;
+
+  container.scrollTo({
+    top: elementTop,
+    behavior: "smooth",
+  });
+
+  element.focus?.();
+}

@@ -1,5 +1,3 @@
-import { MonetizationControls } from "@/shared/components/admin/monetization-controls";
-
 export default function MonetizationPage() {
-  return <MonetizationControls />;
+  return <div className="text-sm text-muted-foreground">Monetization module is not implemented yet.</div>;
 }

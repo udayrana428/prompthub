@@ -124,7 +124,7 @@
   }
 } */
 
-@import "tailwindcss";
+/* @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -274,4 +274,194 @@
 
 .Toastify__close-button {
   color: var(--muted-foreground);
+} */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #374151;
+  --card: #fdf2f8;
+  --card-foreground: #374151;
+  --popover: #ffffff;
+  --popover-foreground: #374151;
+  --primary: #ec4899;
+  --primary-foreground: #ffffff;
+  --secondary: #a855f7;
+  --secondary-foreground: #ffffff;
+  --muted: #fdf2f8;
+  /* --muted-foreground: #6b21a8; */
+  --muted-foreground: #9ca3af;
+  --accent: #a855f7;
+  --accent-foreground: #ffffff;
+  --destructive: #e11d48;
+  --destructive-foreground: #ffffff;
+  --border: #fce7f3;
+  --input: #fce7f3;
+  --ring: #ec4899;
+  --chart-1: #ec4899;
+  --chart-2: #a855f7;
+  --chart-3: #f43f5e;
+  --chart-4: #c084fc;
+  --chart-5: #f9a8d4;
+  --radius: 0.5rem;
+  --sidebar: #fdf2f8;
+  --sidebar-foreground: #374151;
+  --sidebar-primary: #ec4899;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #a855f7;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #fce7f3;
+  --sidebar-ring: #ec4899;
+
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
 }
+
+.dark {
+  --background: #0f1117;
+  --foreground: #f9fafb;
+  --card: #210d25;
+  --card-foreground: #f9fafb;
+  --popover: #1a0a1e;
+  --popover-foreground: #f9fafb;
+  --primary: #ec4899;
+  --primary-foreground: #ffffff;
+  --secondary: #a855f7;
+  --secondary-foreground: #ffffff;
+  --muted: #2d1a35;
+  /* --muted-foreground: #d8b4fe; */
+  --muted-foreground: #9ca3af;
+  --accent: #a855f7;
+  --accent-foreground: #ffffff;
+  --destructive: #f43f5e;
+  --destructive-foreground: #ffffff;
+  --border: #2d1a35;
+  --input: rgba(255, 255, 255, 0.217);
+  --ring: #ec4899;
+  --chart-1: #f472b6;
+  --chart-2: #c084fc;
+  --chart-3: #f43f5e;
+  --chart-4: #a855f7;
+  --chart-5: #f9a8d4;
+  --sidebar: #1a0a1e;
+  --sidebar-foreground: #f9fafb;
+  --sidebar-primary: #ec4899;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #a855f7;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2d1a35;
+  --sidebar-ring: #ec4899;
+
+  /* --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --success: #059669;
+  --success-foreground: #ffffff;
+  --info: #2563eb;
+  --info-foreground: #ffffff; */
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 1000 !important;
+}
+
+.Toastify__toast {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+
+.Toastify__toast-theme--light,
+.Toastify__toast-theme--colored {
+  background: var(--popover);
+  color: var(--popover-foreground);
+}
+
+.Toastify__progress-bar {
+  background: var(--primary);
+}
+
+.Toastify__close-button {
+  color: var(--muted-foreground);
+}
+
+/* ## What Changed From Your Current Theme
+```
+--primary      #dc2626 red     → #ec4899 hot pink  ← matches hero "AI Prompts" color
+--secondary    #f59e0b amber   → #a855f7 purple     ← matches hero "50+" stat color
+--muted        #f0fdf4 green   → #fdf2f8 blush      ← warm pink tint
+--card         #fef2f2 red tint→ #fdf2f8 blush      ← consistent with primary
+--background   #ffffff         → #ffffff            ← unchanged
+--destructive  #dc2626 red     → #e11d48 rose       ← distinct from primary now
+
+Dark mode:
+--background   #1f2937 gray    → #0f1117            ← matches your hero dark bg exactly
+--card         #374151         → #1a0a1e deep purple ← warm dark, not cold gray
+--muted        #4b5563         → #2d1a35             ← purple-tinted dark surface
+--muted-foreground #d1d5db    → #d8b4fe             ← soft purple text on dark */

@@ -1,6 +1,6 @@
 "use client";
-import { AdminSidebar } from "@/shared/components/feature/admin/components/layout/admin-sidebar";
-import { AdminHeader } from "@/shared/components/feature/admin/components/layout/admin-header";
+import { AdminSidebar } from "@/shared/components/feature/admin/layout/admin-sidebar";
+import { AdminHeader } from "@/shared/components/feature/admin/layout/admin-header";
 // import { requireAdminServer } from "@/shared/lib/auth";
 
 export default async function AdminLayout({

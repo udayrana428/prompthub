@@ -25,6 +25,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { createFormikValidator } from "@/shared/lib/formik";
 import { ROUTES } from "@/shared/lib/routes";
 import { appToast } from "@/shared/lib/toastify/toast";
+import { useRouter } from "next/navigation";
 
 interface PromptCommentsProps {
   promptId: string;
@@ -40,6 +41,7 @@ const commentSchema = z.object({
 
 export function PromptComments({ promptId }: PromptCommentsProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const { data, isLoading, isError } = useQuery({
@@ -85,15 +87,16 @@ export function PromptComments({ promptId }: PromptCommentsProps) {
                     if (!isAuthenticated) {
                       appToast.info("Sign in to join the discussion.");
                       helpers.setSubmitting(false);
+                      router.push(ROUTES.LOGIN);
                       return;
                     }
 
                     try {
                       await createComment.mutateAsync(values.content.trim());
                       helpers.resetForm();
-                      appToast.success("Comment posted.");
+                      // appToast.success("Comment posted.");
                     } catch (err: any) {
-                      if (err?.errors) {
+                      if (err?.errors?.length > 0) {
                         err?.errors[0]?.message &&
                           appToast.error(err?.errors[0]?.message);
                       } else if (err?.message) {

@@ -65,8 +65,6 @@ export interface PromptMutationPayload {
   tags?: string[];
   tips?: string[];
   variations?: string[];
-  metaTitle?: string;
-  metaDescription?: string;
   image?: File | null;
 }
 
@@ -103,8 +101,6 @@ const appendPromptFormData = (payload: PromptMutationPayload) => {
     tags: payload.tags?.map((tag) => tag.trim()) ?? [],
     tips: payload.tips?.map((tip) => tip.trim()) ?? [],
     variations: payload.variations?.map((variation) => variation.trim()) ?? [],
-    metaTitle: payload.metaTitle?.trim() ?? "",
-    metaDescription: payload.metaDescription?.trim() ?? "",
   };
 
   formData.append("data", JSON.stringify(serializedPayload));
@@ -139,6 +135,9 @@ export const server = {
 
   getTrendingPrompts: (params?: Omit<PromptListParams, "sortBy">) =>
     server.listPrompts({ ...params, sortBy: "trending" }),
+
+  getLatestPrompts: (params?: Omit<PromptListParams, "sortBy">) =>
+    server.listPrompts({ ...params, sortBy: "latest" }),
 };
 
 export const client = {
@@ -154,6 +153,13 @@ export const client = {
   ): Promise<PromptListApiResponse> =>
     apiClient.get("/prompts", {
       params: { ...params, sortBy: "trending" },
+    }),
+
+  getLatestPrompts: async (
+    params?: Omit<PromptListParams, "sortBy">,
+  ): Promise<PromptListApiResponse> =>
+    apiClient.get("/prompts", {
+      params: { ...params, sortBy: "latest" },
     }),
 
   getEditablePrompt: async (id: string): Promise<EditablePromptResponse> =>

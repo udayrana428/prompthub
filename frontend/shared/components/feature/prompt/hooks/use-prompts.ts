@@ -1,21 +1,45 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { promptApi } from "@/shared/api";
+import { promptApi, trendingApi } from "@/shared/api";
 import { queryKeys } from "@/shared/lib/react-query/keys";
 import type { Prompt, PromptDetail, PromptListParams } from "../types";
 
 export const usePrompts = (params: PromptListParams) =>
   useQuery({
     queryKey: queryKeys.prompts.list(params),
-    queryFn: () => promptApi.client.listPrompts(params),
+    queryFn: async () => {
+      if (params.sortBy === "trending") {
+        const trendingResponse = await trendingApi.client.getTrendingPrompts({
+          window: "WEEKLY",
+          limit: params.limit ?? 24,
+        });
+
+        return trendingApi.toPromptListResponse(trendingResponse, params);
+      }
+
+      return promptApi.client.listPrompts(params);
+    },
     staleTime: 1000 * 60 * 5,
   });
 
-export const useTrendingPrompts = (params: Omit<PromptListParams, "sortBy">) =>
+export const useWeeklyTrendingPrompts = (
+  params: { limit?: number } = {},
+) =>
   useQuery({
-    queryKey: queryKeys.prompts.trending(params),
-    queryFn: () => promptApi.client.getTrendingPrompts(params),
+    queryKey: queryKeys.trending.list({ window: "WEEKLY", ...params }),
+    queryFn: () =>
+      trendingApi.client.getTrendingPrompts({
+        window: "WEEKLY",
+        limit: params.limit ?? 12,
+      }),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const useLatestPrompts = (params: Omit<PromptListParams, "sortBy">) =>
+  useQuery({
+    queryKey: queryKeys.prompts.latest(params),
+    queryFn: () => promptApi.client.getLatestPrompts(params),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -28,6 +52,7 @@ export const usePromptDetail = (slug: string) =>
 
 const invalidatePrompts = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: queryKeys.prompts.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.trending.all });
 };
 
 const patchPromptInResponse = (

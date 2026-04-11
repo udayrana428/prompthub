@@ -1,5 +1,5 @@
-import { PromptManagement } from "@/shared/components/admin/prompt-management";
+import { PromptsIndex } from "@/shared/components/feature/admin/prompts";
 
-export default function PromptsPage() {
-  return <PromptManagement />;
+export default function AdminPromptsPage() {
+  return <PromptsIndex />;
 }

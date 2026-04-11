@@ -1,5 +1,5 @@
-import { CategoriesManagement } from "@/shared/components/admin/categories-management";
+import { CategoriesIndex } from "@/shared/components/feature/admin/categories";
 
 export default function CategoriesPage() {
-  return <CategoriesManagement />;
+  return <CategoriesIndex />;
 }

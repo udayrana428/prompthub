@@ -1,5 +1,5 @@
-import { AdminDashboard } from "@/shared/components/admin/admin-dashboard";
+import { DashboardIndex } from "@/shared/components/feature/admin/dashboard";
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  return <DashboardIndex />;
 }

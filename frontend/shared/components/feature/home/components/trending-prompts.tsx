@@ -3,19 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, Heart, TrendingUp } from "lucide-react";
-import { useTrendingPrompts } from "@/shared/components/feature/prompt/hooks/use-prompts";
+import { useWeeklyTrendingPrompts } from "@/shared/components/feature/prompt/hooks/use-prompts";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { formatModelLabel } from "@/shared/lib/utils";
 
 export function TrendingPrompts() {
-  const { data, isLoading, isError } = useTrendingPrompts({
-    limit: 8,
-    page: 1,
-  });
+  const { data, isLoading, isError } = useWeeklyTrendingPrompts({ limit: 12 });
 
-  const prompts = data?.data.data ?? [];
+  const prompts = data?.data.prompts ?? [];
 
   return (
     <section className="bg-muted/30 py-16 lg:py-24">
@@ -26,7 +23,8 @@ export function TrendingPrompts() {
               Trending Prompts
             </h2>
             <p className="text-lg text-muted-foreground">
-              Ranked from real backend engagement, not placeholder content.
+              Explore the world of AI prompts with our curated collection of
+              trending prompts.
             </p>
           </div>
           <Button asChild variant="outline">
@@ -43,18 +41,27 @@ export function TrendingPrompts() {
             Trending prompts could not be loaded.
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {prompts.map((prompt) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {prompts.map(({ prompt, rank }) => (
               <Card
                 key={prompt.id}
                 className="group overflow-hidden rounded-none border-0 bg-card p-0 transition-all duration-200 hover:shadow-lg"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-square overflow-hidden bg-black">
+                  {prompt.imageUrl && (
+                    <Image
+                      src={prompt.imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover scale-110 blur-lg brightness-50 opacity-60"
+                      aria-hidden
+                    />
+                  )}
                   <Image
                     src={prompt.imageUrl || "/placeholder.svg"}
                     alt={prompt.title}
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-110 group-hover:brightness-50"
+                    className="object-contain transition-transform duration-300 group-hover:scale-110 group-hover:brightness-50"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                   <div className="absolute left-3 top-3 flex items-center gap-2">
@@ -65,8 +72,7 @@ export function TrendingPrompts() {
                       {prompt.category.name}
                     </Badge>
                     <Badge variant="default" className="bg-primary text-xs">
-                      <TrendingUp className="mr-1 h-3 w-3" />
-                      Trending
+                      <TrendingUp className="mr-1 h-3 w-3" />#{rank} Weekly
                     </Badge>
                   </div>
                   <Link
@@ -79,7 +85,9 @@ export function TrendingPrompts() {
                     <p className="mb-2 text-xs text-white/80">
                       {formatModelLabel(prompt.modelType)}
                     </p>
-                    <h3 className="font-semibold text-white">{prompt.title}</h3>
+                    <h3 className="font-semibold text-white line-clamp-1">
+                      {prompt.title}
+                    </h3>
                     <p className="mt-1 line-clamp-2 text-sm text-white/80">
                       {prompt.shortDescription ||
                         "Curated prompt ready to copy and use."}

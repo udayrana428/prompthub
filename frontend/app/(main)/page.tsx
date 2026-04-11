@@ -1,4 +1,4 @@
-import { categoryApi, promptApi } from "@/shared/api";
+import { categoryApi, promptApi, trendingApi } from "@/shared/api";
 import HomePage from "@/shared/components/feature/home";
 import { queryKeys } from "@/shared/lib/react-query/keys";
 import { getServerQueryClient } from "@/shared/lib/react-query/prefetch";
@@ -11,13 +11,13 @@ export default async function Page() {
 
   await Promise.all([
     queryClient.prefetchQuery({
-      queryKey: queryKeys.prompts.trending({ limit: 8, page: 1 }),
-      queryFn: () => promptApi.server.getTrendingPrompts({ limit: 8, page: 1 }),
+      queryKey: queryKeys.trending.list({ window: "WEEKLY", limit: 12 }),
+      queryFn: () =>
+        trendingApi.server.getTrendingPrompts({ window: "WEEKLY", limit: 12 }),
     }),
     queryClient.prefetchQuery({
-      queryKey: queryKeys.categories.list({ limit: 8, isActive: true }),
-      queryFn: () =>
-        categoryApi.server.listCategories({ limit: 8, isActive: true }),
+      queryKey: queryKeys.prompts.latest({ limit: 20, page: 1 }),
+      queryFn: () => promptApi.server.getLatestPrompts({ limit: 20, page: 1 }),
     }),
     queryClient.prefetchQuery({
       queryKey: queryKeys.categories.list({ limit: 12, isActive: true }),

@@ -1,8 +1,9 @@
 import { PromptListPage } from "@/shared/components/feature/prompt";
+import { normalizePromptListParams } from "@/shared/components/feature/prompt/utils/normalize-prompt-list-params";
 import { queryKeys } from "@/shared/lib/react-query/keys";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { getServerQueryClient } from "@/shared/lib/react-query/prefetch";
-import { promptApi } from "@/shared/api";
+import { promptApi, trendingApi } from "@/shared/api";
 
 export const metadata = {
   title: "Browse AI Prompts - PromptHub | 10,000+ Curated Prompts",
@@ -17,13 +18,25 @@ export const metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Record<string, string | string[] | undefined>;
 }) {
   const queryClient = getServerQueryClient();
+  const params = normalizePromptListParams(searchParams);
 
   await queryClient.prefetchQuery({
-    queryKey: queryKeys.prompts.list(searchParams),
-    queryFn: () => promptApi.server.listPrompts(searchParams),
+    queryKey: queryKeys.prompts.list(params),
+    queryFn: async () => {
+      if (params.sortBy === "trending") {
+        const trendingResponse = await trendingApi.server.getTrendingPrompts({
+          window: "WEEKLY",
+          limit: params.limit ?? 24,
+        });
+
+        return trendingApi.toPromptListResponse(trendingResponse, params);
+      }
+
+      return promptApi.server.listPrompts(params);
+    },
   });
 
   return (

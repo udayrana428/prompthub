@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -15,12 +16,14 @@ import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
 import { FormikInputField } from "@/shared/components/ui/formik-field";
 import { createFormikValidator } from "@/shared/lib/formik";
 import { appToast } from "@/shared/lib/toastify/toast";
+import { ROUTES } from "@/shared/lib/routes";
 
 const normalizeUser = (user: any): AuthUser => ({
   id: user?.id ?? "",
@@ -60,6 +63,9 @@ export default function LoginPage() {
     <Card>
       <CardHeader>
         <CardTitle>Sign in to PromptHub</CardTitle>
+        <CardDescription>
+          Access your prompts, saved collections, and creator profile.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Formik
@@ -84,11 +90,11 @@ export default function LoginPage() {
                 // Login already returned a usable user payload.
               }
 
-              appToast.success("Signed in successfully.");
+              // appToast.success("Signed in successfully.");
               router.push("/");
               router.refresh();
             } catch (err: any) {
-              if (err?.errors) {
+              if (err?.errors?.length > 0) {
                 err?.errors[0]?.message &&
                   appToast.error(err?.errors[0]?.message);
               } else if (err?.message) {
@@ -119,6 +125,15 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Signing in..." : "Sign In"}
               </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                New to PromptHub?{" "}
+                <Link
+                  href={ROUTES.SIGNUP}
+                  className="font-medium text-primary hover:underline"
+                >
+                  Create an account
+                </Link>
+              </p>
             </Form>
           )}
         </Formik>

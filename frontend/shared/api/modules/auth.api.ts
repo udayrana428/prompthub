@@ -21,7 +21,12 @@ export const login = async (
 
 export const register = async (
   payload: RegisterPayload,
-): Promise<ApiResponse<{ user: unknown }>> =>
+): Promise<
+  ApiResponse<{
+    user: unknown;
+    accessToken: string;
+  }>
+> =>
   apiClient.post("/auth/register", payload);
 
 export const refresh = async (): Promise<ApiResponse<{ accessToken: string }>> =>
@@ -32,3 +37,12 @@ export const me = async (): Promise<ApiResponse<{ user: unknown }>> =>
 
 export const logout = async (): Promise<ApiResponse<null>> =>
   apiClient.post("/auth/logout");
+
+export const logoutAll = async (): Promise<ApiResponse<null>> =>
+  apiClient.post("/auth/logout-all");
+
+export const changePassword = async (payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<ApiResponse<null>> =>
+  apiClient.post("/auth/change-password", payload);

@@ -51,18 +51,27 @@ export function RelatedPrompts({
                 key={prompt.id}
                 className="group overflow-hidden border-border bg-card transition-all duration-200 hover:shadow-lg"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-square overflow-hidden bg-black">
+                  {prompt.imageUrl && (
+                    <Image
+                      src={prompt.imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover scale-110 blur-lg brightness-50 opacity-60"
+                      aria-hidden
+                    />
+                  )}
                   <Image
                     src={prompt.imageUrl || "/placeholder.svg"}
                     alt={prompt.title}
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   <div className="absolute left-3 top-3">
                     <Badge
                       variant="secondary"
-                      className="bg-background/90 text-xs backdrop-blur-sm"
+                      className="text-xs backdrop-blur-sm"
                     >
                       {prompt.category.name}
                     </Badge>

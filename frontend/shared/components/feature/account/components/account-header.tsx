@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Avatar,
@@ -15,8 +15,10 @@ import {
   useCurrentUserProfile,
   useSavedPrompts,
 } from "../hooks/use-account";
+import { ProfileEditModal } from "./profile-edit-modal";
 
 const AccountHeader = () => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const user = useCurrentAuthUser();
   const { data: profileResponse, isLoading: isProfileLoading } =
     useCurrentUserProfile();
@@ -63,15 +65,27 @@ const AccountHeader = () => {
       <CardContent className="p-8">
         <div className="flex flex-col gap-6 lg:flex-row">
           <div className="flex flex-1 flex-col gap-6 sm:flex-row">
-            <Avatar className="mx-auto h-20 w-20 sm:mx-0">
-              <AvatarImage
-                src={profile?.avatarUrl || "/placeholder.svg"}
-                alt={displayName}
-              />
-              <AvatarFallback className="text-2xl">
-                {avatarFallback}
-              </AvatarFallback>
-            </Avatar>
+            <div className="flex flex-col items-center gap-3 sm:items-start">
+              <Avatar className="mx-auto h-20 w-20 sm:mx-0">
+                <AvatarImage
+                  src={profile?.avatarUrl || "/placeholder.svg"}
+                  alt={displayName}
+                />
+                <AvatarFallback className="text-2xl">
+                  {avatarFallback}
+                </AvatarFallback>
+              </Avatar>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
+            </div>
 
             <div className="flex-1 text-center sm:text-left">
               <h1 className="mb-2 text-2xl font-bold text-foreground">
@@ -108,14 +122,6 @@ const AccountHeader = () => {
             </div>
           </div>
 
-          <div className="flex justify-center lg:justify-end">
-            <Button asChild variant="outline">
-              <Link href="/account/settings">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
-              </Link>
-            </Button>
-          </div>
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-4 border-t border-border pt-8 lg:grid-cols-4">
@@ -149,6 +155,10 @@ const AccountHeader = () => {
           </div>
         </div>
       </CardContent>
+      <ProfileEditModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+      />
     </Card>
   );
 };

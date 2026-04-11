@@ -16,7 +16,8 @@ export async function generateMetadata({
 
   const user = result.data.user;
   const profile = user.profile;
-  const displayName = profile?.displayName || profile?.firstName || user.username;
+  const displayName =
+    profile?.displayName || profile?.firstName || user.username;
   const description =
     profile?.bio ||
     `Explore public AI prompts shared by ${displayName} on PromptHub.`;
@@ -57,7 +58,9 @@ export default async function Page({
     <PublicProfilePage
       user={profileResult.data.user}
       prompts={promptsResult.success ? promptsResult.data.data : []}
-      pagination={promptsResult.success ? promptsResult.data.pagination : undefined}
+      pagination={
+        promptsResult.success ? promptsResult.data.pagination : undefined
+      }
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
-import { UserManagement } from "@/shared/components/admin/user-management";
+import { UsersIndex } from "@/shared/components/feature/admin/users";
 
 export default function UsersPage() {
-  return <UserManagement />;
+  return <UsersIndex />;
 }

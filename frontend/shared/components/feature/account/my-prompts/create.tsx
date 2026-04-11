@@ -1,29 +1,17 @@
 "use client";
 
-import {
-  FieldArray,
-  Form,
-  Formik,
-  useField,
-  type FormikErrors,
-} from "formik";
+import { FieldArray, Form, Formik, useField, type FormikErrors } from "formik";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import {
-  Plus,
-  Save,
-  Sparkles,
-  Trash2,
-  WandSparkles,
-} from "lucide-react";
+import { Plus, Save, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import { categoryApi } from "@/shared/api";
 import {
   useCreatePrompt,
   useEditablePrompt,
   useUpdatePrompt,
 } from "../hooks/use-account";
-import { createFormikValidator } from "@/shared/lib/formik";
+import { createFormikValidator, scrollToFirstError } from "@/shared/lib/formik";
 import { appToast } from "@/shared/lib/toastify/toast";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -47,6 +35,7 @@ import {
   FormikTextareaField,
 } from "@/shared/components/ui/formik-field";
 import { PromptImageUploader } from "./image-uploader";
+import { FormikErrorScroller } from "@/shared/components/common/common-components/formik-error-scroller";
 
 const modelOptions = [
   { value: "DALL_E", label: "DALL-E" },
@@ -57,22 +46,32 @@ const modelOptions = [
 ] as const;
 
 const promptSchema = z.object({
-  title: z.string().trim().min(5, "Title must be at least 5 characters.").max(255),
+  title: z
+    .string()
+    .trim()
+    .min(5, "Title must be at least 5 characters.")
+    .max(255),
   categoryId: z.string().trim().min(1, "Category is required."),
   modelType: z.string().trim().min(1, "Model type is required."),
-  shortDescription: z.string().trim().max(500, "Short description is too long."),
+  shortDescription: z
+    .string()
+    .trim()
+    .max(500, "Short description is too long."),
   description: z.string().trim(),
   promptText: z
     .string()
     .trim()
     .min(20, "Prompt text should be at least 20 characters."),
   tagsText: z.string().trim(),
-  tips: z.array(z.string().trim().max(280, "Each tip must be 280 characters or fewer.")),
-  variations: z.array(
-    z.string().trim().max(280, "Each variation must be 280 characters or fewer."),
+  tips: z.array(
+    z.string().trim().max(280, "Each tip must be 280 characters or fewer."),
   ),
-  metaTitle: z.string().trim().max(255, "Meta title is too long."),
-  metaDescription: z.string().trim().max(500, "Meta description is too long."),
+  variations: z.array(
+    z
+      .string()
+      .trim()
+      .max(280, "Each variation must be 280 characters or fewer."),
+  ),
   image: z.instanceof(File).nullable().optional(),
 });
 
@@ -100,12 +99,16 @@ function PromptSelectField({
   options: Array<{ value: string; label: string }>;
 }) {
   const [field, meta, helpers] = useField<string>(name);
-  const message = meta.touched && typeof meta.error === "string" ? meta.error : null;
+  const message =
+    meta.touched && typeof meta.error === "string" ? meta.error : null;
 
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <Select value={field.value} onValueChange={(value) => helpers.setValue(value)}>
+      <Select
+        value={field.value}
+        onValueChange={(value) => helpers.setValue(value)}
+      >
         <SelectTrigger id={name} className="w-full" aria-invalid={!!message}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -132,7 +135,8 @@ function DynamicListField({
   placeholder: string;
 }) {
   const [field, meta] = useField<string[]>(name);
-  const error = meta.touched && typeof meta.error === "string" ? meta.error : null;
+  const error =
+    meta.touched && typeof meta.error === "string" ? meta.error : null;
 
   return (
     <div className="space-y-3">
@@ -193,16 +197,27 @@ export function PromptEditorModal({
   const { data: editablePromptResponse, isLoading: isPromptLoading } =
     useEditablePrompt(promptId ?? undefined, open && isEditMode);
 
-  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useQuery({
-    queryKey: ["categories", "editor-options"],
-    queryFn: () => categoryApi.client.listCategories({ page: 1, limit: 100, isActive: true }),
-    staleTime: 1000 * 60 * 10,
-  });
+  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useQuery(
+    {
+      queryKey: ["categories", "editor-options"],
+      queryFn: () =>
+        categoryApi.client.listCategories({
+          page: 1,
+          limit: 100,
+          isActive: true,
+        }),
+      staleTime: 1000 * 60 * 10,
+    },
+  );
 
   const editablePrompt = editablePromptResponse?.data.prompt;
   const categories = categoriesResponse?.data.data ?? [];
   const categoryOptions = useMemo(
-    () => categories.map((category) => ({ value: category.id, label: category.name })),
+    () =>
+      categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      })),
     [categories],
   );
 
@@ -215,21 +230,24 @@ export function PromptEditorModal({
     promptText: editablePrompt?.promptText ?? "",
     tagsText: editablePrompt?.tags.map((tag) => tag.tag.name).join(", ") ?? "",
     tips: editablePrompt?.tips.map((tip) => tip.content) ?? [],
-    variations: editablePrompt?.variations.map((variation) => variation.content) ?? [],
-    metaTitle: editablePrompt?.metaTitle ?? "",
-    metaDescription: editablePrompt?.metaDescription ?? "",
+    variations:
+      editablePrompt?.variations.map((variation) => variation.content) ?? [],
     image: null,
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl">
+      <DialogContent
+        data-radix-dialog-content
+        className="max-h-[92vh] overflow-y-auto sm:max-w-4xl"
+      >
         <DialogHeader>
           <DialogTitle>
             {isEditMode ? "Update Prompt" : "Create a New Prompt"}
           </DialogTitle>
           <DialogDescription>
-            Build a complete prompt entry with image, metadata, and reusable prompt variants.
+            Build a complete prompt entry with image, metadata, and reusable
+            prompt variants.
           </DialogDescription>
         </DialogHeader>
 
@@ -242,13 +260,18 @@ export function PromptEditorModal({
             enableReinitialize
             initialValues={initialValues}
             validate={(values) => {
-              const errors = createFormikValidator<PromptFormValues>(promptSchema)(
-                values,
-              ) as FormikErrors<PromptFormValues>;
+              const errors = createFormikValidator<PromptFormValues>(
+                promptSchema,
+              )(values) as FormikErrors<PromptFormValues>;
               const parsedTags = parseTags(values.tagsText);
 
               if (parsedTags.length === 0) {
                 errors.tagsText = "Add at least one tag.";
+              }
+
+              const hasExistingImage = !!editablePrompt?.imageUrl;
+              if (!values.image && (!isEditMode || !hasExistingImage)) {
+                errors.image = "Prompt image is required.";
               }
 
               if (values.image && values.image.size > 2 * 1024 * 1024) {
@@ -257,7 +280,9 @@ export function PromptEditorModal({
 
               if (
                 values.image &&
-                !["image/jpeg", "image/png", "image/webp"].includes(values.image.type)
+                !["image/jpeg", "image/png", "image/webp"].includes(
+                  values.image.type,
+                )
               ) {
                 errors.image = "Only PNG, JPG, and WebP images are allowed.";
               }
@@ -277,13 +302,12 @@ export function PromptEditorModal({
                 variations: values.variations
                   .map((variation) => variation.trim())
                   .filter(Boolean),
-                metaTitle: values.metaTitle,
-                metaDescription: values.metaDescription,
                 image: values.image ?? null,
               };
 
               try {
                 if (isEditMode && promptId) {
+                  console.log("payloaddddddddd", payload);
                   await updatePrompt.mutateAsync({ id: promptId, payload });
                   appToast.success("Prompt updated successfully.");
                 } else {
@@ -293,11 +317,16 @@ export function PromptEditorModal({
 
                 helpers.resetForm();
                 onOpenChange(false);
-              } catch (error: any) {
-                appToast.error(
-                  error?.message ||
-                    `Prompt could not be ${isEditMode ? "updated" : "created"}.`,
-                );
+              } catch (err: any) {
+                if (err?.errors?.length > 0) {
+                  err?.errors[0]?.message &&
+                    appToast.error(err?.errors[0]?.message);
+                } else if (err?.message) {
+                  appToast.error(
+                    err?.message ||
+                      `Prompt could not be ${isEditMode ? "updated" : "created"}.`,
+                  );
+                }
               } finally {
                 helpers.setSubmitting(false);
               }
@@ -305,6 +334,7 @@ export function PromptEditorModal({
           >
             {({ isSubmitting, values, errors, setFieldValue, resetForm }) => (
               <Form className="space-y-6" noValidate>
+                <FormikErrorScroller />
                 <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
                   <div className="space-y-6">
                     <FormikInputField
@@ -317,7 +347,9 @@ export function PromptEditorModal({
                         name="categoryId"
                         label="Category"
                         placeholder={
-                          isCategoriesLoading ? "Loading categories..." : "Select category"
+                          isCategoriesLoading
+                            ? "Loading categories..."
+                            : "Select category"
                         }
                         options={categoryOptions}
                       />
@@ -367,26 +399,18 @@ export function PromptEditorModal({
                         placeholder="Example: Swap Mumbai street for Delhi market."
                       />
                     </div>
-                    <div className="grid gap-6 lg:grid-cols-2">
-                      <FormikInputField
-                        name="metaTitle"
-                        label="Meta Title"
-                        placeholder="Optional SEO title for this prompt page"
-                      />
-                      <FormikTextareaField
-                        name="metaDescription"
-                        label="Meta Description"
-                        rows={3}
-                        placeholder="Optional SEO description for this prompt page"
-                      />
-                    </div>
                   </div>
 
                   <div className="space-y-6">
-                    <div className="rounded-xl border border-border bg-card p-4">
+                    <div
+                      id="image"
+                      className="rounded-xl border border-border bg-card p-4"
+                    >
                       <div className="mb-3 flex items-center gap-2">
                         <WandSparkles className="h-4 w-4 text-primary" />
-                        <p className="font-medium text-card-foreground">Prompt Cover</p>
+                        <p className="font-medium text-card-foreground">
+                          Prompt Cover *
+                        </p>
                       </div>
                       <PromptImageUploader
                         value={values.image ?? null}
@@ -394,18 +418,27 @@ export function PromptEditorModal({
                         onChange={(file) => void setFieldValue("image", file)}
                       />
                       {typeof errors.image === "string" ? (
-                        <p className="mt-2 text-sm text-destructive">{errors.image}</p>
+                        <p className="mt-2 text-sm text-destructive">
+                          {errors.image}
+                        </p>
+                      ) : !editablePrompt?.imageUrl ? (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Upload a required cover image before saving this
+                          prompt.
+                        </p>
                       ) : null}
                     </div>
 
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                       <div className="mb-2 flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-primary" />
-                        <p className="font-medium text-foreground">Publishing flow</p>
+                        <p className="font-medium text-foreground">
+                          Publishing flow
+                        </p>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        New and updated prompts go through moderation and will appear as
-                        pending until review completes.
+                        New and updated prompts go through moderation and will
+                        appear as pending until review completes.
                       </p>
                     </div>
                   </div>
@@ -424,10 +457,16 @@ export function PromptEditorModal({
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isSubmitting || createPrompt.isPending || updatePrompt.isPending}
+                    disabled={
+                      isSubmitting ||
+                      createPrompt.isPending ||
+                      updatePrompt.isPending
+                    }
                   >
                     <Save className="mr-2 h-4 w-4" />
-                    {isSubmitting || createPrompt.isPending || updatePrompt.isPending
+                    {isSubmitting ||
+                    createPrompt.isPending ||
+                    updatePrompt.isPending
                       ? isEditMode
                         ? "Updating..."
                         : "Saving..."

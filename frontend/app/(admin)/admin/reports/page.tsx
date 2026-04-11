@@ -1,5 +1,5 @@
-import { ReportsModeration } from "@/shared/components/admin/reports-moderation";
+import { ReportsIndex } from "@/shared/components/feature/admin/reports";
 
 export default function ReportsPage() {
-  return <ReportsModeration />;
+  return <ReportsIndex />;
 }

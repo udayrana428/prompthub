@@ -1,0 +1,119 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Eye, Heart, TrendingUp } from "lucide-react";
+import { useLatestPrompts } from "@/shared/components/feature/prompt/hooks/use-prompts";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+import { Badge } from "@/shared/components/ui/badge";
+import { formatModelLabel } from "@/shared/lib/utils";
+
+export function LatestPrompts() {
+  const { data, isLoading, isError } = useLatestPrompts({
+    limit: 20,
+    page: 1,
+  });
+
+  const prompts = data?.data.data ?? [];
+
+  return (
+    <section className="bg-muted/30 py-16 lg:py-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="mb-4 text-3xl font-bold text-foreground lg:text-4xl">
+              Latest Prompts
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Discover the latest prompts from the community
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/prompts?sortBy=latest">View All Prompts</Link>
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <div className="text-sm text-muted-foreground">
+            Loading latest prompts...
+          </div>
+        ) : isError ? (
+          <div className="text-sm text-destructive">
+            Latest prompts could not be loaded.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {prompts.map((prompt) => (
+              <Card
+                key={prompt.id}
+                className="group overflow-hidden rounded-none border-0 bg-card p-0 transition-all duration-200 hover:shadow-lg"
+              >
+                <div className="relative aspect-square overflow-hidden bg-black">
+                  {prompt.imageUrl && (
+                    <Image
+                      src={prompt.imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover scale-110 blur-lg brightness-50 opacity-60"
+                      aria-hidden
+                    />
+                  )}
+                  <Image
+                    src={prompt.imageUrl || "/placeholder.svg"}
+                    alt={prompt.title}
+                    fill
+                    className="object-contain transition-transform duration-300 group-hover:scale-110 group-hover:brightness-50"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="absolute left-3 top-3 flex items-center gap-2">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs backdrop-blur-sm"
+                    >
+                      {prompt.category.name}
+                    </Badge>
+                  </div>
+                  <Link
+                    href={`/prompts/${prompt.slug}`}
+                    className="absolute inset-0"
+                  >
+                    <span className="sr-only">Open {prompt.title}</span>
+                  </Link>
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <p className="mb-2 text-xs text-white/80">
+                      {formatModelLabel(prompt.modelType)}
+                    </p>
+                    <h3 className="font-semibold text-white line-clamp-1">
+                      {prompt.title}
+                    </h3>
+                    <p className="mt-1 line-clamp-2 text-sm text-white/80">
+                      {prompt.shortDescription ||
+                        "Curated prompt ready to copy and use."}
+                    </p>
+                    <div className="mt-3 flex items-center gap-3 text-xs text-white/90">
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {prompt.viewsCount.toLocaleString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="h-3 w-3" />
+                        {prompt.likesCount.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-12 text-center">
+          <Button asChild size="lg" variant="outline">
+            <Link href="/prompts?sortBy=latest">Explore Latest Prompts</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -6,26 +6,13 @@ import { PromptsHeader } from "./components/prompts-header";
 import { PromptsFilters } from "./components/prompts-filters";
 import { PromptsGrid } from "./components/prompts-grid";
 import { usePrompts } from "./hooks/use-prompts";
-import type { PromptListParams } from "./types";
+import { normalizePromptListParams } from "./utils/normalize-prompt-list-params";
 
 const PromptListPage = () => {
   const [showFilter, setShowFilter] = useState(false);
   const searchParams = useSearchParams();
 
-  const params: PromptListParams = {
-    page: searchParams.get("page")
-      ? Number(searchParams.get("page"))
-      : undefined,
-    limit: searchParams.get("limit")
-      ? Number(searchParams.get("limit"))
-      : undefined,
-    search: searchParams.get("search") || undefined,
-    category: searchParams.get("category") || undefined,
-    tag: searchParams.get("tag") || undefined,
-    model: searchParams.get("model") || undefined,
-    sortBy:
-      (searchParams.get("sortBy") as PromptListParams["sortBy"]) || "latest",
-  };
+  const params = normalizePromptListParams(searchParams);
 
   const { data, isLoading, isError } = usePrompts(params);
   const promptData = data?.data;

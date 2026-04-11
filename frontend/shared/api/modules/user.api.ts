@@ -32,6 +32,8 @@ export interface UserAccount {
   roles?: string[];
   permissions?: string[];
   profile: UserProfile | null;
+  isFollowedByViewer?: boolean;
+  isOwnedByViewer?: boolean;
 }
 
 export interface UserPrompt {
@@ -110,6 +112,25 @@ export type PublicProfileResponse = ApiResponse<{ user: UserAccount }>;
 export type UserPromptsResponse = ApiResponse<PaginatedData<UserPrompt>>;
 export type UserFavoritesResponse = ApiResponse<PaginatedData<FavoritePrompt>>;
 
+const getServerFetchOptions = async (revalidateSeconds: number) => {
+  const { cookies } = await import("next/headers");
+  const cookieStore = cookies();
+  const cookieHeader = cookieStore.toString();
+
+  if (cookieHeader) {
+    return {
+      headers: {
+        Cookie: cookieHeader,
+      },
+      cache: "no-store" as const,
+    };
+  }
+
+  return {
+    next: { revalidate: revalidateSeconds },
+  };
+};
+
 const buildQueryString = (
   params?: UserPromptListParams,
 ) => {
@@ -128,9 +149,10 @@ const buildQueryString = (
 
 export const server = {
   getPublicProfile: async (slug: string): Promise<PublicProfileResponse> => {
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/users/${slug}`, {
-      next: { revalidate: 300 },
-    });
+    const res = await fetch(
+      `${env.NEXT_PUBLIC_API_URL}/users/${slug}`,
+      await getServerFetchOptions(300),
+    );
 
     if (!res.ok) return errorResponse();
     return res.json();
@@ -142,9 +164,7 @@ export const server = {
   ): Promise<UserPromptsResponse> => {
     const res = await fetch(
       `${env.NEXT_PUBLIC_API_URL}/users/${slug}/prompts${buildQueryString(params)}`,
-      {
-        next: { revalidate: 120 },
-      },
+      await getServerFetchOptions(120),
     );
 
     if (!res.ok) return errorResponse();
@@ -171,6 +191,14 @@ export const updateMyProfile = async (
   payload: UpdateProfilePayload,
 ): Promise<ApiResponse<{ profile: UserProfile }>> =>
   apiClient.patch("/users/me/profile", payload);
+
+export const updateMyAvatar = async (
+  file: File,
+): Promise<ApiResponse<{ profile: UserProfile }>> => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+  return apiClient.patch("/users/me/avatar", formData);
+};
 
 export const updateMyUsername = async (
   payload: UpdateUsernamePayload,

@@ -30,12 +30,16 @@ import { ROUTES } from "@/shared/lib/routes";
 import { formatModelLabel } from "@/shared/lib/utils";
 import { useAppSelector } from "@/shared/redux/hooks";
 import { appToast } from "@/shared/lib/toastify/toast";
+import CommonBreadCrumb from "@/shared/components/common/common-components/bread-crumb";
+import { useRouter } from "next/navigation";
 
 interface PromptDetailProps {
   prompt: PromptDetailType;
 }
 
 export function PromptDetail({ prompt }: PromptDetailProps) {
+  const router = useRouter();
+
   const [copied, setCopied] = useState(false);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const likePrompt = useToggleLikePrompt();
@@ -55,6 +59,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const handleToggleFavorite = () => {
     if (!isAuthenticated) {
       appToast.info("Sign in to save prompts.");
+      router.push(ROUTES.LOGIN);
       return;
     }
 
@@ -67,6 +72,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
   const handleToggleLike = () => {
     if (!isAuthenticated) {
       appToast.info("Sign in to like prompts.");
+      router.push(ROUTES.LOGIN);
       return;
     }
 
@@ -76,16 +82,22 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
     });
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: "Prompts", href: "/prompts" },
+    {
+      label: prompt.category.name,
+      href: `/prompts?category=${prompt.category.slug}`,
+    },
+    { label: prompt.title },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        <nav className="mb-6 text-sm text-muted-foreground">
-          <Link href="/">Home</Link> / <Link href="/prompts">Prompts</Link> /{" "}
-          <Link href={`/prompts?category=${prompt.category.slug}`}>
-            {prompt.category.name}
-          </Link>{" "}
-          / <span className="text-foreground">{prompt.title}</span>
-        </nav>
+        <div className="mb-6 ">
+          <CommonBreadCrumb items={breadcrumbItems} />
+        </div>
 
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2">
@@ -157,12 +169,21 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         </div>
 
         <Card className="mb-8 overflow-hidden">
-          <div className="relative aspect-[16/10] bg-muted">
+          <div className="relative aspect-[16/10] bg-black">
+            {prompt.imageUrl && (
+              <Image
+                src={prompt.imageUrl}
+                alt=""
+                fill
+                className="object-cover scale-110 blur-lg brightness-50 opacity-60"
+                aria-hidden
+              />
+            )}
             <Image
               src={prompt.imageUrl || "/placeholder.svg"}
               alt={prompt.title}
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
