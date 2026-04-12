@@ -1,4 +1,7 @@
 import winston from "winston";
+
+const isVercel = process.env.VERCEL === "1";
+
 // Define your severity levels.
 const levels = {
   error: 0,
@@ -41,19 +44,23 @@ const format = winston.format.combine(
   winston.format.colorize({ all: true }),
   // Define the format of the message showing the timestamp, the level and the message
   winston.format.printf(
-    (info) => `[${info.timestamp}] ${info.level}: ${info.message}`
-  )
+    (info) => `[${info.timestamp}] ${info.level}: ${info.message}`,
+  ),
 );
 
 // Define which transports the logger must use to print out messages.
 // In this example, we are using three different transports
-const transports = [
-  // Allow the use the console to print the messages
-  new winston.transports.Console(),
-  new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-  new winston.transports.File({ filename: "logs/info.log", level: "info" }),
-  new winston.transports.File({ filename: "logs/http.log", level: "http" }),
-];
+// ✅ Always include Console transport
+const transports = [new winston.transports.Console()];
+
+// ✅ Only add File transports when NOT on Vercel
+if (!isVercel) {
+  transports.push(
+    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+    new winston.transports.File({ filename: "logs/info.log", level: "info" }),
+    new winston.transports.File({ filename: "logs/http.log", level: "http" }),
+  );
+}
 
 // Create the logger instance that has to be exported
 // and used to log messages.
