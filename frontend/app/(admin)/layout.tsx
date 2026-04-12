@@ -1,33 +1,11 @@
-"use client";
-import { AdminSidebar } from "@/shared/components/feature/admin/layout/admin-sidebar";
-import { AdminHeader } from "@/shared/components/feature/admin/layout/admin-header";
-// import { requireAdminServer } from "@/shared/lib/auth";
+// app/(admin)/admin/layout.tsx
+// Keep this as a server component — no "use client" here
+import { AdminShell } from "@/shared/components/feature/admin/layout/admin-shell";
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const { isAuthenticated, user } = useAppSelector((s) => s.auth);
-  // const router = useRouter();
-
-  // useEffect(() => {
-  //   if (!isAuthenticated || !isAdmin(user?.roles)) {
-  //     router.replace("/");
-  //   }
-  // }, [isAuthenticated]);
-
-  // if (!isAuthenticated) return <PageLoader />;
-
-  // await requireAdminServer(); // redirects to / if not admin
-
-  return (
-    <div className="min-h-screen bg-background">
-      <AdminHeader />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }

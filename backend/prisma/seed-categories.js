@@ -386,7 +386,7 @@ const categories = [
 
 // ── Seed Function ─────────────────────────────────────────────────────────────
 
-const SUPER_ADMIN_ID = "71ce1bbd-dd8f-46af-826b-8fd37e35cd45";
+const SUPER_ADMIN_ID = "dbfde918-ef4e-4262-8c01-137398bc6cda";
 
 const seedCategories = async () => {
   console.log("🌱 Seeding categories...");

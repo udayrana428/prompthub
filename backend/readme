@@ -11,3 +11,44 @@ await prisma.$transaction(async (tx) => {
 const user = await repo.createUser(data, tx);
 await repo.assignRole(user.id, roleId, tx); // needs user.id from above
 });
+
+// "scripts": {
+// // 🚀 Start development server with auto-reload
+// "dev": "nodemon -r dotenv/config --experimental-json-modules ./src/index.js",
+
+// // 🏁 Start production server (no auto-reload)
+// "start": "node -r dotenv/config ./src/index.js",
+
+// // 🧪 Run Prisma migrations in DEVELOPMENT ONLY (may reset DB if needed)
+// "db:migrate": "prisma migrate dev",
+
+// // 🚀 Apply migrations to PRODUCTION / Aiven DB safely (DO NOT use dev here)
+// "db:migrate:deploy": "prisma migrate deploy",
+
+// // 🔄 Rebuild Prisma Client after schema changes
+// "db:generate": "prisma generate",
+
+// // 🧭 Open visual database GUI for inspection
+// "db:studio": "prisma studio",
+
+// // 🌱 Seed database with initial data (main seed file)
+// "db:seed": "node -r dotenv/config ./prisma/seed.js",
+
+// // 🌱 Seed categories only (partial dataset)
+// "db:seed-categories": "node -r dotenv/config ./prisma/seed-categories.js",
+
+// // 📥 Pull current database schema into schema.prisma (reverse engineer DB)
+// "db:pull": "prisma db pull",
+
+// // 📤 Push schema to database WITHOUT migrations (use only for quick prototyping)
+// "db:push": "prisma db push",
+
+// // 🔍 Check migration status (very useful for debugging issues)
+// "db:status": "prisma migrate status",
+
+// // 🔧 Reset database (⚠️ deletes all data, development only)
+// "db:reset": "prisma migrate reset",
+
+// // 🧹 Format Prisma schema file
+// "db:format": "prisma format"
+// }

@@ -8,10 +8,16 @@
     "dev": "nodemon -r dotenv/config --experimental-json-modules ./src/index.js",
     "start": "node -r dotenv/config ./src/index.js",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:seed": "node -r dotenv/config ./prisma/seed.js",
-    "db:seed-categories": "node -r dotenv/config ./prisma/seed-categories.js"
+    "db:seed-categories": "node -r dotenv/config ./prisma/seed-categories.js",
+    "db:pull": "prisma db pull",
+    "db:push": "prisma db push",
+    "db:status": "prisma migrate status",
+    "db:reset": "prisma migrate reset",
+    "db:format": "prisma format"
   },
   "author": "Uday Rana",
   "license": "ISC",
