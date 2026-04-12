@@ -4,7 +4,9 @@ import { queryKeys } from "@/shared/lib/react-query/keys";
 import { getServerQueryClient } from "@/shared/lib/react-query/prefetch";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
-export const revalidate = 60;
+// export const revalidate = 60;
+
+export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const queryClient = getServerQueryClient();
