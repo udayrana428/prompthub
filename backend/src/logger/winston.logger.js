@@ -2,6 +2,8 @@ import winston from "winston";
 
 const isVercel = process.env.VERCEL === "1";
 
+// console.log(isVercel);
+
 // Define your severity levels.
 const levels = {
   error: 0,
