@@ -17,6 +17,12 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export const connectDB = async () => {
+  // ✅ Skip reconnection if already connected (Vercel warm instances)
+  if (globalForPrisma._dbConnected) {
+    logger.info("♻️ Reusing existing DB connection");
+    return;
+  }
+
   try {
     await prisma.$connect();
     logger.info("✅ Database connected (Prisma)");
