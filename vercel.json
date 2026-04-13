@@ -6,7 +6,7 @@
       "framework": "nextjs"
     },
     "backend": {
-      "entrypoint": "backend/src/app.vercel.js",
+      "entrypoint": "backend",
       "routePrefix": "/_/backend"
     }
   }

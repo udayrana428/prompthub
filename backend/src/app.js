@@ -56,3 +56,5 @@ app.use(multerErrorHandler);
 app.use(globalErrorHandler);
 
 export const httpServer = http.createServer(app);
+
+export default app;
