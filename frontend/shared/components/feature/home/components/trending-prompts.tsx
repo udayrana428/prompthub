@@ -18,7 +18,7 @@ export function TrendingPrompts() {
     <section className="bg-muted/30 py-16 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 flex items-center justify-between gap-4">
-          <div>
+          <div className="text-center sm:text-start">
             <h2 className="mb-4 text-3xl font-bold text-foreground lg:text-4xl">
               Trending Prompts
             </h2>
@@ -27,7 +27,7 @@ export function TrendingPrompts() {
               trending prompts.
             </p>
           </div>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="hidden sm:block">
             <Link href="/prompts?sortBy=trending">View All Prompts</Link>
           </Button>
         </div>

@@ -7,6 +7,7 @@ import { Search, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 const galleryImages = [
   "https://images.unsplash.com/photo-1771515220905-ba0784fb7522?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBSSUyMGdlbmVyYXRlZCUyMGFydCUyMGN5YmVycHVua3xlbnwxfHx8fDE3NzQyMDk5MTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -23,6 +24,7 @@ const galleryImages = [
   "https://images.unsplash.com/photo-1669780080319-ac38af934355?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGdyYWRpZW50JTIwYmFja2dyb3VuZHxlbnwxfHx8fDE3NzQxNjY5NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
 ];
 
+// ─── Desktop: vertical scrolling column ───────────────────────────────────────
 interface ScrollingColumnProps {
   images: string[];
   direction: "up" | "down";
@@ -40,9 +42,7 @@ function ScrollingColumn({
     <div className="flex flex-col overflow-hidden h-full">
       <motion.div
         className="flex flex-col gap-4"
-        animate={{
-          y: direction === "up" ? [0, -1200] : [-1200, 0],
-        }}
+        animate={{ y: direction === "up" ? [0, -1200] : [-1200, 0] }}
         transition={{
           duration: speed,
           repeat: Infinity,
@@ -63,9 +63,45 @@ function ScrollingColumn({
   );
 }
 
+// ─── Mobile: horizontal scrolling row ─────────────────────────────────────────
+interface ScrollingRowProps {
+  images: string[];
+  direction: "left" | "right";
+  speed: number;
+  delay: number;
+}
+
+function ScrollingRow({ images, direction, speed, delay }: ScrollingRowProps) {
+  return (
+    <div className="overflow-hidden w-full">
+      <motion.div
+        className="flex flex-row gap-3"
+        animate={{ x: direction === "left" ? [0, -1200] : [-1200, 0] }}
+        transition={{
+          duration: speed,
+          repeat: Infinity,
+          ease: "linear",
+          delay,
+        }}
+      >
+        {[...images, ...images, ...images].map((img, i) => (
+          <div
+            key={i}
+            className="w-36 h-28 rounded-lg overflow-hidden flex-shrink-0"
+          >
+            <img src={img} alt="" className="w-full h-full object-cover" />
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 export function HeroSection() {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const isMobile = useIsMobile();
 
   const submitSearch = () => {
     const query = search.trim();
@@ -76,50 +112,101 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-slate-950">
-      {/* Animated background gallery */}
-      <div className="absolute inset-0 flex gap-4 px-4">
-        <ScrollingColumn
-          images={galleryImages.slice(0, 3)}
-          direction="down"
-          speed={20}
-          delay={0}
-        />
-        <ScrollingColumn
-          images={galleryImages.slice(3, 6)}
-          direction="up"
-          speed={25}
-          delay={0.5}
-        />
-        <ScrollingColumn
-          images={galleryImages.slice(6, 9)}
-          direction="down"
-          speed={22}
-          delay={1}
-        />
-        <ScrollingColumn
-          images={galleryImages.slice(9, 12)}
-          direction="up"
-          speed={27}
-          delay={0.2}
-        />
-        <ScrollingColumn
-          images={galleryImages.slice(0, 3)}
-          direction="down"
-          speed={24}
-          delay={0.8}
-        />
-        <ScrollingColumn
-          images={galleryImages.slice(3, 6)}
-          direction="up"
-          speed={21}
-          delay={0.3}
-        />
-      </div>
+      {/* ── Desktop background: vertical columns ── */}
+      {!isMobile && (
+        <div className="absolute inset-0 flex gap-4 px-4">
+          <ScrollingColumn
+            images={galleryImages.slice(0, 3)}
+            direction="down"
+            speed={20}
+            delay={0}
+          />
+          <ScrollingColumn
+            images={galleryImages.slice(3, 6)}
+            direction="up"
+            speed={25}
+            delay={0.5}
+          />
+          <ScrollingColumn
+            images={galleryImages.slice(6, 9)}
+            direction="down"
+            speed={22}
+            delay={1}
+          />
+          <ScrollingColumn
+            images={galleryImages.slice(9, 12)}
+            direction="up"
+            speed={27}
+            delay={0.2}
+          />
+          <ScrollingColumn
+            images={galleryImages.slice(0, 3)}
+            direction="down"
+            speed={24}
+            delay={0.8}
+          />
+          <ScrollingColumn
+            images={galleryImages.slice(3, 6)}
+            direction="up"
+            speed={21}
+            delay={0.3}
+          />
+        </div>
+      )}
+
+      {/* ── Mobile background: horizontal rows ── */}
+      {/* ── Mobile background: horizontal rows ── */}
+      {isMobile && (
+        <div className="absolute inset-0 flex flex-col justify-between py-4 gap-3">
+          <ScrollingRow
+            images={galleryImages.slice(0, 6)}
+            direction="left"
+            speed={18}
+            delay={0}
+          />
+          <ScrollingRow
+            images={galleryImages.slice(6, 12)}
+            direction="right"
+            speed={22}
+            delay={0.4}
+          />
+          <ScrollingRow
+            images={galleryImages.slice(0, 6)}
+            direction="left"
+            speed={20}
+            delay={0.8}
+          />
+          <ScrollingRow
+            images={galleryImages.slice(6, 12)}
+            direction="right"
+            speed={16}
+            delay={0.2}
+          />
+          <ScrollingRow
+            images={galleryImages.slice(0, 6)}
+            direction="left"
+            speed={19}
+            delay={0.6}
+          />
+          <ScrollingRow
+            images={galleryImages.slice(6, 12)}
+            direction="right"
+            speed={23}
+            delay={0.3}
+          />
+          <ScrollingRow
+            images={galleryImages.slice(0, 6)}
+            direction="left"
+            speed={17}
+            delay={1.0}
+          />
+        </div>
+      )}
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950/60 via-slate-950/40 to-slate-950/60" />
 
-      {/* Content */}
+      {/* ── Content ── */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20">
         {/* Badge */}
         <motion.div
@@ -161,14 +248,14 @@ export function HeroSection() {
           more. Copy, customize, and create amazing AI art in seconds.
         </motion.p>
 
-        {/* Search CTA */}
+        {/* Search */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl mb-16"
+          className="flex flex-col items-center sm:flex-row gap-4 w-full max-w-2xl mb-16"
         >
-          <div className="relative flex-1">
+          <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-300" />
             <Input
               placeholder="Try 'cyberpunk city' or 'fantasy landscape'..."
@@ -176,19 +263,19 @@ export function HeroSection() {
                 placeholder:text-gray-300 backdrop-blur-md rounded-2xl
                 focus-visible:ring-pink-500/50"
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") submitSearch();
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitSearch();
               }}
             />
           </div>
           <Link href="/prompts">
             <Button
               size="lg"
-              className="h-12 px-8 rounded-2xl border-0
-              bg-gradient-to-r from-pink-500 to-purple-600
-              hover:from-pink-600 hover:to-purple-700
-              shadow-lg shadow-pink-500/30"
+              className="h-12 px-8 rounded-2xl border-0 w-full sm:w-auto
+                bg-gradient-to-r from-pink-500 to-purple-600
+                hover:from-pink-600 hover:to-purple-700
+                shadow-lg shadow-pink-500/30"
             >
               Explore Prompts
               <ArrowRight className="ml-2 h-4 w-4" />
