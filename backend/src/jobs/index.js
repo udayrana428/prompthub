@@ -58,7 +58,7 @@ export const initJobs = async () => {
   await trendingQueue.add(
     "daily-snapshot",
     { windowType: "DAILY" },
-    { repeat: { pattern: "0 * * * *" } },
+    { repeat: { pattern: "0 * * * *" }, jobId: "daily-snapshot" },
   ); // every hour
   await trendingQueue.add(
     "weekly-snapshot",
