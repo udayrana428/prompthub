@@ -2,10 +2,11 @@ import "dotenv/config";
 import { initJobs } from "./jobs/index.js";
 import logger from "./logger/winston.logger.js";
 import express from "express";
+import { appConfig } from "./config/app.config.js";
 
 const app = express();
 
-app.get("/health", (req, res) => res.send("OK"));
+app.get("/health", (req, res) => res.send("Worker running"));
 const startWorker = async () => {
   try {
     logger.info("🚀 Starting BullMQ workers...");
@@ -18,8 +19,8 @@ const startWorker = async () => {
 
 startWorker();
 
-app.listen(10000, () => {
-  logger.info("🚀 Worker + HTTP running");
+app.listen(appConfig.port, () => {
+  logger.info(`🌐 Worker HTTP server running on port ${appConfig.port}`);
 });
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
