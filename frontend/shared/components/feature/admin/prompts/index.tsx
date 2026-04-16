@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import type { TableColumn, TableProps } from "react-data-table-component";
 const DataTable = dynamic(() => import("react-data-table-component"), {
   ssr: false,
-});
+}) as <T>(props: TableProps<T>) => JSX.Element;
 const DataTableExtensions = dynamic(
   () => import("react-data-table-component-extensions"),
   { ssr: false },
@@ -64,6 +65,7 @@ import {
   useUpdateAdminPromptStatus,
 } from "./hooks/use-admin-prompts";
 import { PromptStatusBadge } from "./components/prompt-status-badge";
+import { globalTableStyles } from "@/shared/components/common/common-styles";
 
 const statusOptions = [
   { value: "all", label: "All statuses" },
@@ -516,7 +518,7 @@ export function PromptsIndex() {
             </Select>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-border">
+          <div className="admin-data-table overflow-hidden rounded-xl border border-border bg-card">
             <DataTableExtensions
               columns={columns}
               data={prompts}
@@ -529,6 +531,7 @@ export function PromptsIndex() {
               <DataTable
                 columns={columns}
                 data={prompts}
+                customStyles={globalTableStyles}
                 noHeader
                 responsive
                 highlightOnHover

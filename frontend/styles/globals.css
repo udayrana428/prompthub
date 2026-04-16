@@ -451,6 +451,181 @@
   color: var(--muted-foreground);
 }
 
+.admin-data-table .data-table-extensions {
+  background: var(--card);
+  color: var(--card-foreground);
+  border-bottom: 1px solid var(--border);
+  padding: 0.9rem 1rem;
+}
+
+.admin-data-table .data-table-extensions::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.admin-data-table .data-table-extensions > .data-table-extensions-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-filter
+  > .icon {
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.65;
+  filter: grayscale(1);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-filter
+  > .filter-text {
+  min-width: 16rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  padding: 0.55rem 0.75rem;
+  margin-left: 0;
+  background: var(--background);
+  color: var(--foreground);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-filter
+  > .filter-text::placeholder {
+  color: var(--muted-foreground);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-filter
+  > .filter-text:focus,
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-filter
+  > .filter-text:hover {
+  border-color: var(--ring);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > button {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  background-color: var(--background);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > button.drop,
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > button:hover {
+  background-color: var(--muted);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > button::after {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > .dropdown {
+  background-color: var(--popover);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > .dropdown
+  button {
+  color: var(--popover-foreground);
+}
+
+.admin-data-table
+  .data-table-extensions
+  > .data-table-extensions-action
+  > .dropdown
+  button:hover {
+  background-color: var(--muted);
+}
+
+.admin-data-table .rdt_Pagination {
+  background-color: var(--card);
+  color: var(--muted-foreground);
+  border-top: 1px solid var(--border);
+}
+
+.admin-data-table .rdt_Pagination select {
+  background-color: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  /* padding: 4px 6px;
+  height: 2rem; */
+  outline: none;
+}
+
+.admin-data-table .rdt_Pagination select:focus {
+  border-color: var(--ring);
+}
+
+/* dropdown options (browser dependent but helps) */
+.admin-data-table .rdt_Pagination select option {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+}
+
+.admin-data-table .rdt_Pagination button {
+  background-color: transparent;
+  color: var(--muted-foreground);
+  border-radius: calc(var(--radius) - 2px);
+  transition: all 0.15s ease;
+}
+
+/* SVG icons inside buttons */
+.admin-data-table .rdt_Pagination button svg {
+  fill: var(--muted-foreground);
+}
+
+/* hover */
+.admin-data-table .rdt_Pagination button:hover:not(:disabled) {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.admin-data-table .rdt_Pagination button:hover svg {
+  fill: var(--accent-foreground);
+}
+
+/* disabled */
+.admin-data-table .rdt_Pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-data-table .rdt_Pagination span {
+  color: var(--muted-foreground);
+}
+
 /* ## What Changed From Your Current Theme
 ```
 --primary      #dc2626 red     → #ec4899 hot pink  ← matches hero "AI Prompts" color

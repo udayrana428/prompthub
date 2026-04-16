@@ -24,6 +24,7 @@ import {
   Copy,
   ExternalLink,
   Share,
+  Share2,
 } from "lucide-react";
 import { promptApi } from "@/shared/api";
 import { env } from "@/shared/lib/env";
@@ -230,7 +231,7 @@ const AccountSavedPromptsPage = () => {
                       onClick={() => void handleSharePrompt(prompt.slug)}
                       title="Share"
                     >
-                      <Share className="h-3.5 w-3.5" />
+                      <Share2 className="h-3.5 w-3.5" />
                     </Button>
                     <Button
                       asChild

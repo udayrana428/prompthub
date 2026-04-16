@@ -1,7 +1,7 @@
 {
-  "name": "chai_backend",
+  "name": "prompthub_backend",
   "version": "1.0.0",
-  "description": "It's a backend",
+  "description": "This is the prompthub's backend",
   "type": "module",
   "main": "index.js",
   "scripts": {

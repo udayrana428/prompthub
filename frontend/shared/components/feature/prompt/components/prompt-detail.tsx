@@ -9,6 +9,7 @@ import {
   Eye,
   Heart,
   Lightbulb,
+  Share2,
   Shuffle,
   Users,
 } from "lucide-react";
@@ -32,6 +33,8 @@ import { useAppSelector } from "@/shared/redux/hooks";
 import { appToast } from "@/shared/lib/toastify/toast";
 import CommonBreadCrumb from "@/shared/components/common/common-components/bread-crumb";
 import { useRouter } from "next/navigation";
+import { env } from "@/shared/lib/env";
+import { ExpandableText } from "@/shared/components/common/common-components/expandable-text";
 
 interface PromptDetailProps {
   prompt: PromptDetailType;
@@ -80,6 +83,15 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       id: prompt.id,
       isLiked: prompt.isLiked,
     });
+  };
+
+  const handleSharePrompt = async (slug: string) => {
+    const url = `${env.NEXT_PUBLIC_APP_URL}/prompts/${slug}`;
+    if (navigator.share) {
+      await navigator.share({ url });
+      return;
+    }
+    await navigator.clipboard.writeText(url);
   };
 
   const breadcrumbItems = [
@@ -215,17 +227,23 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                     className={`h-4 w-4 ${prompt.isLiked ? "fill-current" : ""}`}
                   />
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void handleSharePrompt(prompt.slug)}
+                  title="Share"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
 
             <div className="mb-4 rounded-lg border border-border bg-background p-4">
-              <p className="font-mono text-sm leading-relaxed text-foreground">
-                {prompt.promptText}
-              </p>
+              <ExpandableText text={prompt.promptText} maxLines={3} />
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Button onClick={handleCopy} className="flex-1" size="lg">
+              <Button onClick={handleCopy} className="flex-1 py-1" size="lg">
                 <Copy className="mr-2 h-4 w-4" />
                 {copied ? "Copied!" : "Copy Prompt"}
               </Button>

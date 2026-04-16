@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, Heart, TrendingUp } from "lucide-react";
+import { Copy, Eye, Heart, TrendingUp } from "lucide-react";
 import { useWeeklyTrendingPrompts } from "@/shared/components/feature/prompt/hooks/use-prompts";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { formatModelLabel } from "@/shared/lib/utils";
+import { ROUTES } from "@/shared/lib/routes";
 
 export function TrendingPrompts() {
   const { data, isLoading, isError } = useWeeklyTrendingPrompts({ limit: 12 });
@@ -41,7 +42,7 @@ export function TrendingPrompts() {
             Trending prompts could not be loaded.
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {prompts.map(({ prompt, rank }) => (
               <Card
                 key={prompt.id}
@@ -69,11 +70,20 @@ export function TrendingPrompts() {
                       variant="secondary"
                       className="text-xs backdrop-blur-sm"
                     >
+                      {formatModelLabel(prompt.modelType)}
+                    </Badge>
+                    {/* <p className="mb-2 text-xs text-white/80">
+                        {formatModelLabel(prompt.modelType)}
+                      </p> */}
+                    {/* <Badge
+                      variant="secondary"
+                      className="text-xs backdrop-blur-sm"
+                    >
                       {prompt.category.name}
                     </Badge>
                     <Badge variant="default" className="bg-primary text-xs">
                       <TrendingUp className="mr-1 h-3 w-3" />#{rank} Weekly
-                    </Badge>
+                    </Badge> */}
                   </div>
                   <Link
                     href={`/prompts/${prompt.slug}`}
@@ -82,25 +92,35 @@ export function TrendingPrompts() {
                     <span className="sr-only">Open {prompt.title}</span>
                   </Link>
                   <div className="absolute inset-x-0 bottom-0 p-4">
-                    <p className="mb-2 text-xs text-white/80">
-                      {formatModelLabel(prompt.modelType)}
-                    </p>
-                    <h3 className="font-semibold text-white line-clamp-1">
+                    {/* <p className="mb-2 text-xs text-white/80">
+                        {formatModelLabel(prompt.modelType)}
+                      </p> */}
+                    <h3 className="font-semibold text-xs text-white line-clamp-1">
                       {prompt.title}
                     </h3>
-                    <p className="mt-1 line-clamp-2 text-sm text-white/80">
-                      {prompt.shortDescription ||
-                        "Curated prompt ready to copy and use."}
-                    </p>
-                    <div className="mt-3 flex items-center gap-3 text-xs text-white/90">
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        {prompt.viewsCount.toLocaleString()}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Heart className="h-3 w-3" />
-                        {prompt.likesCount.toLocaleString()}
-                      </span>
+                    {/* <p className="mt-1 line-clamp-2 text-sm text-white/80">
+                        {prompt.shortDescription ||
+                          "Curated prompt ready to copy and use."}
+                      </p> */}
+                    <div className="mt-3 flex items-center justify-between text-xs text-white/90">
+                      <div className="flex items-center gap-3 text-xs">
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          {prompt.viewsCount.toLocaleString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="h-3 w-3" />
+                          {prompt.likesCount.toLocaleString()}
+                        </span>
+                      </div>
+                      <Link
+                        href={ROUTES.PROFILE(prompt.createdBy.slug)}
+                        className="transition-colors hover:text-primary"
+                      >
+                        by{" "}
+                        {prompt.createdBy.profile?.displayName ||
+                          prompt.createdBy.username}
+                      </Link>
                     </div>
                   </div>
                 </div>

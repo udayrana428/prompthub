@@ -8,6 +8,7 @@ export const ROUTES = {
   ACCOUNT: "/account",
   ADMIN: {
     ROOT: "/admin",
+    LOGIN: "/admin/login",
     USERS: "/admin/users",
     PROMPTS: "/admin/prompts",
     TAGS: "/admin/tags",
