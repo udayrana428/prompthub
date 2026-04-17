@@ -5,7 +5,7 @@ export const createNotification = (data) =>
 
 export const getUserNotifications = (userId, { skip, take }) =>
   prisma.notification.findMany({
-    where: { userId, deletedOn: null },
+    where: { userId, isRead: false, deletedOn: null },
     orderBy: { createdOn: "desc" },
     skip,
     take,
@@ -27,12 +27,12 @@ export const countNotifications = (userId, unreadOnly = false) =>
 
 export const markAllRead = (userId) =>
   prisma.notification.updateMany({
-    where: { userId, isRead: false },
+    where: { userId, isRead: false, deletedOn: null },
     data: { isRead: true, readAt: new Date() },
   });
 
 export const markOneRead = (id, userId) =>
   prisma.notification.updateMany({
-    where: { id, userId },
+    where: { id, userId, deletedOn: null },
     data: { isRead: true, readAt: new Date() },
   });

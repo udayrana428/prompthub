@@ -1,6 +1,7 @@
 import prisma from "../../../db/index.js";
 import * as promptRepo from "../../prompt/prompt.repository.js";
 import * as tagRepo from "../../tag/tag.repository.js";
+import { notify } from "../../notification/notification.service.js";
 import { generateUniqueSlugTx } from "../../../shared/services/slug.service.js";
 import {
   uploadToCloudinary,
@@ -300,6 +301,32 @@ export const updatePromptStatus = async (promptId, data, actorId) => {
     rejectionReason: data.rejectionReason || null,
     modifiedById: actorId,
   });
+
+  if (
+    data.status === PromptStatus.APPROVED &&
+    existing.status !== PromptStatus.APPROVED
+  ) {
+    notify({
+      userId: existing.createdById,
+      actorId,
+      type: "PROMPT_APPROVED",
+      referenceId: promptId,
+      referenceType: "PROMPT",
+    }).catch(() => {});
+  }
+
+  if (
+    data.status === PromptStatus.REJECTED &&
+    existing.status !== PromptStatus.REJECTED
+  ) {
+    notify({
+      userId: existing.createdById,
+      actorId,
+      type: "PROMPT_REJECTED",
+      referenceId: promptId,
+      referenceType: "PROMPT",
+    }).catch(() => {});
+  }
 
   return getPromptById(promptId);
 };

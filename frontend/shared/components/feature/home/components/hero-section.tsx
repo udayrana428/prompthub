@@ -256,7 +256,7 @@ export function HeroSection() {
           className="flex flex-col items-center sm:flex-row gap-4 w-full max-w-2xl mb-16"
         >
           <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-300" />
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-300 z-10" />
             <Input
               placeholder="Try 'cyberpunk city' or 'fantasy landscape'..."
               className="pl-10 h-12 text-base bg-white/5 border-white/10 text-white

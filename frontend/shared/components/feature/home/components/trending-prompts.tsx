@@ -16,7 +16,7 @@ export function TrendingPrompts() {
   const prompts = data?.data.prompts ?? [];
 
   return (
-    <section className="bg-muted/30 py-16 lg:py-24">
+    <section className="bg-muted/30 py-6 lg:py-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 flex items-center justify-between gap-4">
           <div className="text-center sm:text-start">

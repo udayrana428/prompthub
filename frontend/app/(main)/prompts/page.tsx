@@ -5,6 +5,11 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { getServerQueryClient } from "@/shared/lib/react-query/prefetch";
 import { promptApi, trendingApi } from "@/shared/api";
 
+const getPromptListBaseParams = (params: ReturnType<typeof normalizePromptListParams>) => ({
+  ...params,
+  page: undefined,
+});
+
 export const metadata = {
   title: "Browse AI Prompts - PromptHub | 10,000+ Curated Prompts",
   description:
@@ -23,19 +28,22 @@ export default async function Page({
   const queryClient = getServerQueryClient();
   const params = normalizePromptListParams(searchParams);
 
-  await queryClient.prefetchQuery({
-    queryKey: queryKeys.prompts.list(params),
-    queryFn: async () => {
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: queryKeys.prompts.list(getPromptListBaseParams(params)),
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const nextParams = { ...params, page: pageParam as number };
+
       if (params.sortBy === "trending") {
         const trendingResponse = await trendingApi.server.getTrendingPrompts({
           window: "WEEKLY",
           limit: params.limit ?? 24,
         });
 
-        return trendingApi.toPromptListResponse(trendingResponse, params);
+        return trendingApi.toPromptListResponse(trendingResponse, nextParams);
       }
 
-      return promptApi.server.listPrompts(params);
+      return promptApi.server.listPrompts(nextParams);
     },
   });
 

@@ -61,8 +61,6 @@ export default function AdminLoginPage() {
     (state) => state.auth,
   );
 
-  console.log("User==>", user);
-
   const nextPath = searchParams.get("next") || ROUTES.ADMIN.ROOT;
   const isAdmin = isAdminUser(user?.roles);
 

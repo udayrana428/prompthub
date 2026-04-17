@@ -20,6 +20,7 @@ import {
   resolveMeta,
 } from "../../shared/services/seo.service.js";
 import { capitalize } from "../../shared/utils/helpers.js";
+import { notify } from "../notification/notification.service.js";
 import { appConfig } from "../../config/app.config.js";
 import prisma from "../../db/index.js";
 import logger from "../../logger/winston.logger.js";
@@ -436,12 +437,30 @@ export const deletePrompt = async (promptId, userId) => {
 };
 
 export const likePrompt = async (promptId, userId) => {
+  const prompt = await promptRepo.findPromptById(promptId);
+  if (!prompt || prompt.status !== PromptStatus.APPROVED) {
+    throw ApiError.notFound(MSG.PROMPT.NOT_FOUND);
+  }
+
   const existing = await promptRepo.findLike(promptId, userId);
   if (existing) throw ApiError.conflict(MSG.PROMPT.LIKED);
   await promptRepo.createLike(promptId, userId);
+
+  notify({
+    userId: prompt.createdById,
+    actorId: userId,
+    type: "PROMPT_LIKE",
+    referenceId: promptId,
+    referenceType: "PROMPT",
+  }).catch(() => {});
 };
 
 export const unlikePrompt = async (promptId, userId) => {
+  const prompt = await promptRepo.findPromptById(promptId);
+  if (!prompt || prompt.status !== PromptStatus.APPROVED) {
+    throw ApiError.notFound(MSG.PROMPT.NOT_FOUND);
+  }
+
   const existing = await promptRepo.findLike(promptId, userId);
   if (!existing) throw ApiError.conflict("You haven't liked this prompt.");
   await promptRepo.deleteLike(promptId, userId);

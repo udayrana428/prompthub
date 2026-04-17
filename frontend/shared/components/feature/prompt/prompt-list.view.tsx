@@ -7,41 +7,79 @@ import { PromptsFilters } from "./components/prompts-filters";
 import { PromptsGrid } from "./components/prompts-grid";
 import { usePrompts } from "./hooks/use-prompts";
 import { normalizePromptListParams } from "./utils/normalize-prompt-list-params";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/shared/components/ui/drawer";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { useIsMobile } from "@/shared/components/ui/use-mobile";
 
 const PromptListPage = () => {
   const [showFilter, setShowFilter] = useState(false);
   const searchParams = useSearchParams();
+  const isMobile = useIsMobile();
 
   const params = normalizePromptListParams(searchParams);
 
-  const { data, isLoading, isError } = usePrompts(params);
-  const promptData = data?.data;
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = usePrompts(params);
+
+  const pages = data?.pages ?? [];
+  const prompts = pages.flatMap((page) => page.data.data);
+  const promptData = pages[0]?.data;
+  const latestPagination = pages[pages.length - 1]?.data.pagination;
 
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <PromptsHeader
-        onShowFilter={() => setShowFilter((prev) => !prev)}
+        onShowFilter={() => setShowFilter(true)}
         params={params}
         total={promptData?.pagination.total ?? 0}
       />
 
-      <div className="flex flex-col gap-8 lg:flex-row mt-5">
-        <aside
-          className={`flex-shrink-0 lg:block lg:w-64 ${
-            showFilter ? "block" : "hidden"
-          }`}
-        >
-          <PromptsFilters params={params} />
-        </aside>
+      <Drawer
+        open={showFilter}
+        onOpenChange={setShowFilter}
+        direction={isMobile ? "bottom" : "right"}
+      >
+        <DrawerContent className="flex flex-col h-[100dvh]">
+          <DrawerHeader className="border-b border-border pb-4">
+            <DrawerTitle>Filter Prompts</DrawerTitle>
+            <DrawerDescription>
+              Refine the catalog by category and model without leaving the page.
+            </DrawerDescription>
+          </DrawerHeader>
+          <ScrollArea className="flex-1 overflow-y-auto px-4 pb-6">
+            <div className="pt-4">
+              <PromptsFilters
+                params={params}
+                onApply={() => setShowFilter(false)}
+              />
+            </div>
+          </ScrollArea>
+        </DrawerContent>
+      </Drawer>
 
-        <div className="flex-1">
-          <PromptsGrid
-            prompts={promptData?.data ?? []}
-            pagination={promptData?.pagination}
-            isLoading={isLoading}
-            isError={isError}
-          />
-        </div>
+      <div className="mt-5">
+        <PromptsGrid
+          prompts={prompts}
+          pagination={latestPagination}
+          total={promptData?.pagination.total ?? 0}
+          isLoading={isLoading}
+          isError={isError}
+          hasNextPage={!!hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onLoadMore={() => fetchNextPage()}
+        />
       </div>
     </div>
   );

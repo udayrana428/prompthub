@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
+  Bell,
   Bookmark,
+  BookOpen,
   LayoutDashboard,
   LogOut,
   Menu,
+  Pencil,
   Search,
   Settings,
   Sparkles,
@@ -34,6 +38,13 @@ import {
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ThemeToggle } from "@/shared/components/common/common-components/theme-toggle";
 import { ROUTES } from "@/shared/lib/routes";
+const NotificationBell = dynamic(
+  () =>
+    import("@/shared/components/feature/notification/components/notification-bell").then(
+      (m) => m.NotificationBell,
+    ),
+  { ssr: false },
+);
 
 export function Header() {
   const router = useRouter();
@@ -49,12 +60,12 @@ export function Header() {
   const avatarUrl = user?.profile?.avatarUrl ?? undefined;
   const avatarFallback = displayName.charAt(0).toUpperCase() || "A";
 
-  const submitSearch = () => {
-    const query = search.trim();
-    router.push(
-      query ? `/prompts?search=${encodeURIComponent(query)}` : "/prompts",
-    );
-  };
+  // const submitSearch = () => {
+  //   const query = search.trim();
+  //   router.push(
+  //     query ? `/prompts?search=${encodeURIComponent(query)}` : "/prompts",
+  //   );
+  // };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -99,12 +110,6 @@ export function Header() {
 
     return (
       <>
-        {/* <Button asChild variant="ghost" size="sm" className="hidden md:flex">
-          <Link href="/account">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            My Account
-          </Link>
-        </Button> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-10 gap-3 px-2 group">
@@ -133,19 +138,18 @@ export function Header() {
             <DropdownMenuItem asChild>
               <Link href="/account">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
-                Overview
+                My Account
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/account/my-prompts">
-                <Sparkles className="mr-2 h-4 w-4" />
-                My Prompts
+              <Link href="/prompts">
+                <Search className="mr-2 h-4 w-4" />
+                Browse Prompts
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/account/saved-prompts">
-                <Bookmark className="mr-2 h-4 w-4" />
-                Saved Prompts
+              <Link href="/blog">
+                <BookOpen className="mr-2 h-4 w-4" /> Blog
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -255,7 +259,7 @@ export function Header() {
             </span>
           </Link>
 
-          <div className="mx-8 hidden max-w-md flex-1 md:flex">
+          {/* <div className="mx-8 hidden max-w-md flex-1 md:flex">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -268,31 +272,34 @@ export function Header() {
                 }}
               />
             </div>
-          </div>
-
-          <nav className="hidden items-center space-x-6 md:flex">
-            <Link
-              href="/prompts"
-              className="text-foreground transition-colors hover:text-primary"
-            >
-              Browse Prompts
-            </Link>
-            <Link
-              href="/blog"
-              className="text-foreground transition-colors hover:text-primary"
-            >
-              Blog
-            </Link>
-          </nav>
+          </div> */}
 
           <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            {renderDesktopAuth()}
-            {renderMobileMenu()}
+            <nav className="hidden items-center space-x-6 md:flex">
+              <Link
+                href="/prompts"
+                className="text-foreground transition-colors hover:text-primary"
+              >
+                Browse Prompts
+              </Link>
+              <Link
+                href="/blog"
+                className="text-foreground transition-colors hover:text-primary"
+              >
+                Blog
+              </Link>
+            </nav>
+
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              <NotificationBell />
+              {renderDesktopAuth()}
+              {/* {renderMobileMenu()} */}
+            </div>
           </div>
         </div>
 
-        <div className="pb-4 md:hidden">
+        {/* <div className="pb-4 md:hidden">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -305,7 +312,7 @@ export function Header() {
               }}
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </header>
   );

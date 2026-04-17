@@ -6,7 +6,8 @@ import { Eye, Heart } from "lucide-react";
 import { usePrompts } from "../hooks/use-prompts";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { Card } from "@/shared/components/ui/card";
+import type { Prompt } from "../types";
 import { formatModelLabel } from "@/shared/lib/utils";
 import { ROUTES } from "@/shared/lib/routes";
 
@@ -31,8 +32,8 @@ export function RelatedPrompts({
   });
 
   const relatedPrompts =
-    data?.data.data.filter(
-      (prompt) =>
+    data?.pages[0]?.data.data.filter(
+      (prompt: Prompt) =>
         prompt.id !== currentPromptId && prompt.slug !== currentPromptSlug,
     ) ?? [];
 

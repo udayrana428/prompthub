@@ -163,57 +163,64 @@ export function PromptComments({ promptId }: PromptCommentsProps) {
 
                     return (
                       <div key={comment.id} className="space-y-4">
-                        <div className="flex gap-3">
-                          <Avatar className="h-8 w-8 flex-shrink-0">
-                            <AvatarImage
-                              src={
-                                comment.user.profile?.avatarUrl ||
-                                "/placeholder.svg"
-                              }
-                              alt={authorName}
-                            />
-                            <AvatarFallback>{authorName[0]}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Link
-                                href={ROUTES.PROFILE(comment.user.slug)}
-                                className="text-sm font-medium transition-colors hover:text-primary"
-                              >
-                                {authorName}
-                              </Link>
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(comment.createdOn).toLocaleString()}
-                              </span>
-                              {comment.edited ? (
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px]"
+                        <div className="flex justify-between">
+                          <div className="flex gap-3">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
+                              <AvatarImage
+                                src={
+                                  comment.user.profile?.avatarUrl ||
+                                  "/placeholder.svg"
+                                }
+                                alt={authorName}
+                              />
+                              <AvatarFallback>{authorName[0]}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Link
+                                  href={ROUTES.PROFILE(comment.user.slug)}
+                                  className="text-sm font-medium transition-colors hover:text-primary"
                                 >
-                                  Edited
-                                </Badge>
-                              ) : null}
+                                  {authorName}
+                                </Link>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(comment.createdOn).toLocaleString()}
+                                </span>
+                                {comment.edited ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px]"
+                                  >
+                                    Edited
+                                  </Badge>
+                                ) : null}
+                              </div>
+                              <p className="text-sm text-foreground">
+                                {comment.content}
+                              </p>
+                              <div className="flex items-center gap-4">
+                                {comment.repliesCount > 0 ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {comment.repliesCount} repl
+                                    {comment.repliesCount === 1 ? "y" : "ies"}
+                                  </Badge>
+                                ) : null}
+                              </div>
                             </div>
-                            <p className="text-sm text-foreground">
-                              {comment.content}
-                            </p>
-                            <div className="flex items-center gap-4">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 text-xs"
-                                disabled
-                              >
-                                <Heart className="mr-1 h-3 w-3" />
-                                {comment.likesCount}
-                              </Button>
-                              {comment.repliesCount > 0 ? (
-                                <Badge variant="secondary" className="text-xs">
-                                  {comment.repliesCount} repl
-                                  {comment.repliesCount === 1 ? "y" : "ies"}
-                                </Badge>
-                              ) : null}
-                            </div>
+                          </div>
+                          <div className="ml-10">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-xs"
+                              disabled
+                            >
+                              <Heart className="mr-1 h-3 w-3" />
+                              {comment.likesCount}
+                            </Button>
                           </div>
                         </div>
                       </div>

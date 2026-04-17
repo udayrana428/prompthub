@@ -30,6 +30,10 @@ export const queryKeys = {
     following: (userId: string, params: object = {}) =>
       ["social", "following", userId, params] as const,
   },
+  notifications: {
+    all: ["notifications"] as const,
+    list: (params: object = {}) => ["notifications", "list", params] as const,
+  },
   admin: {
     users: (params: object) => ["admin", "users", params] as const,
     prompts: (params: object) => ["admin", "prompts", params] as const,

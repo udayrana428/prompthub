@@ -6,6 +6,7 @@ export const ROUTES = {
   PROMPT: (slug: string) => `/prompts/${slug}`,
   PROFILE: (username: string) => `/profile/${username}`,
   ACCOUNT: "/account",
+  ACCOUNT_NOTIFICATIONS: "/account/notifications",
   ADMIN: {
     ROOT: "/admin",
     LOGIN: "/admin/login",

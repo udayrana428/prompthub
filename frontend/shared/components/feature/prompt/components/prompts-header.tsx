@@ -42,27 +42,27 @@ export function PromptsHeader({
     router.push(
       toRoute({
         ...params,
-        page: 1,
+        page: undefined,
         search: search.trim() || undefined,
       }),
     );
   };
 
   return (
-    <section className="border-b border-border bg-card py-8">
+    <section className="border-b border-border bg-card py-4">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div>
+          {/* <div>
             <h1 className="mb-2 text-3xl font-bold text-card-foreground lg:text-4xl">
               Browse AI Prompts
             </h1>
             <p className="text-muted-foreground">
               Discover prompts synced directly from your backend catalog
             </p>
-          </div>
+          </div> */}
 
-          <div className="flex w-full flex-col gap-4 sm:flex-row lg:w-auto">
-            <div className="relative flex-1 lg:w-80">
+          <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search prompts, styles, or keywords..."
@@ -74,46 +74,46 @@ export function PromptsHeader({
                 }}
               />
             </div>
-            <Button variant="outline" onClick={submitSearch}>
-              Search
-            </Button>
-            <Select
-              value={params.sortBy || "latest"}
-              onValueChange={(value) =>
-                router.push(
-                  toRoute({
-                    ...params,
-                    page: 1,
-                    sortBy: value as PromptListParams["sortBy"],
-                  }),
-                )
-              }
-            >
-              <SelectTrigger className="w-full border-border bg-background sm:w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="latest">Newest First</SelectItem>
-                <SelectItem value="popular">Most Liked</SelectItem>
-                <SelectItem value="trending">Trending</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-3">
+              <Select
+                value={params.sortBy || "latest"}
+                onValueChange={(value) =>
+                  router.push(
+                    toRoute({
+                      ...params,
+                      page: undefined,
+                      sortBy: value as PromptListParams["sortBy"],
+                    }),
+                  )
+                }
+              >
+                <SelectTrigger className="w-full border-border bg-background sm:w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="latest">Newest First</SelectItem>
+                  <SelectItem value="popular">Most Liked</SelectItem>
+                  <SelectItem value="trending">Trending</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                onClick={onShowFilter}
+                variant="outline"
+                size="sm"
+                className="shrink-0 bg-transparent"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Filters
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between border-t border-border pt-6">
+        <div className=" flex items-center justify-between pt-3">
           <p className="text-sm text-muted-foreground">
             {total} prompt{total === 1 ? "" : "s"} found
           </p>
-          <Button
-            onClick={onShowFilter}
-            variant="outline"
-            size="sm"
-            className="bg-transparent lg:hidden"
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
         </div>
       </div>
     </section>

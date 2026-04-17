@@ -5,4 +5,5 @@ export * as categoryApi from "./modules/category.api";
 export * as commentApi from "./modules/comment.api";
 export * as userApi from "./modules/user.api";
 export * as socialApi from "./modules/social.api";
+export * as notificationApi from "./modules/notification.api";
 export { adminPromptApi } from "./modules/admin-prompt.api";

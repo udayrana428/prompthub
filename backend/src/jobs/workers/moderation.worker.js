@@ -18,11 +18,10 @@ export const createModerationWorker = () =>
       const triggeredBy = isUpdate ? "ai-classifier-update" : "ai-classifier";
 
       logger.info(
-        `🔍 Moderating prompt ${promptId} (attempt ${job.attemptsMade + 1})`,
+        `Moderating prompt ${promptId} (attempt ${job.attemptsMade + 1})`,
       );
 
       const result = await runAIModeration(text);
-      // runAIModeration throws on API failure — BullMQ catches it and retries
 
       if (result.flagged || result.score > 0.7) {
         await updatePromptStatus(
@@ -38,8 +37,15 @@ export const createModerationWorker = () =>
           triggeredBy,
         );
 
+        notify({
+          userId: authorId,
+          type: "PROMPT_REJECTED",
+          referenceId: promptId,
+          referenceType: "PROMPT",
+        }).catch(() => {});
+
         logger.info(
-          `❌ Prompt ${promptId} auto-rejected (score: ${result.score.toFixed(2)})`,
+          `Prompt ${promptId} auto-rejected (score: ${result.score.toFixed(2)})`,
         );
       } else if (result.score < 0.2) {
         await updatePromptStatus(promptId, PromptStatus.APPROVED);
@@ -59,10 +65,9 @@ export const createModerationWorker = () =>
         }).catch(() => {});
 
         logger.info(
-          `✅ Prompt ${promptId} auto-approved (score: ${result.score.toFixed(2)})`,
+          `Prompt ${promptId} auto-approved (score: ${result.score.toFixed(2)})`,
         );
       } else {
-        // Ambiguous — escalate to human review queue
         await logModeration(
           promptId,
           "FLAGGED_FOR_REVIEW",
@@ -72,12 +77,12 @@ export const createModerationWorker = () =>
         );
 
         logger.info(
-          `⚠️  Prompt ${promptId} escalated to manual review (score: ${result.score.toFixed(2)})`,
+          `Prompt ${promptId} escalated to manual review (score: ${result.score.toFixed(2)})`,
         );
       }
     },
     {
       connection: redisConnection,
-      concurrency: 5, // process max 5 moderation jobs simultaneously
+      concurrency: 5,
     },
   );

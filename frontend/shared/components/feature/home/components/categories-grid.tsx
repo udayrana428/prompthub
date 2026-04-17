@@ -38,7 +38,7 @@ export function CategoriesGrid() {
   const categories = (data?.data.data ?? []).slice(0, 8);
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-6 lg:py-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-3xl font-bold text-foreground lg:text-4xl">

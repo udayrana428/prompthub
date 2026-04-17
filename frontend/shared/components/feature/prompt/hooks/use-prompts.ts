@@ -1,31 +1,48 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { promptApi, trendingApi } from "@/shared/api";
 import { queryKeys } from "@/shared/lib/react-query/keys";
 import type { Prompt, PromptDetail, PromptListParams } from "../types";
 
+const getPromptListBaseParams = (
+  params: PromptListParams,
+): PromptListParams => ({
+  ...params,
+  page: undefined,
+});
+
 export const usePrompts = (params: PromptListParams) =>
-  useQuery({
-    queryKey: queryKeys.prompts.list(params),
-    queryFn: async () => {
+  useInfiniteQuery({
+    queryKey: queryKeys.prompts.list(getPromptListBaseParams(params)),
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const nextParams = { ...params, page: pageParam as number };
+
       if (params.sortBy === "trending") {
         const trendingResponse = await trendingApi.client.getTrendingPrompts({
           window: "WEEKLY",
           limit: params.limit ?? 24,
         });
 
-        return trendingApi.toPromptListResponse(trendingResponse, params);
+        return trendingApi.toPromptListResponse(trendingResponse, nextParams);
       }
 
-      return promptApi.client.listPrompts(params);
+      return promptApi.client.listPrompts(nextParams);
     },
-    staleTime: 1000 * 60 * 5,
+    getNextPageParam: (lastPage) => {
+      const pagination = lastPage.data.pagination;
+      return pagination.hasNextPage ? pagination.page + 1 : undefined;
+    },
+    staleTime: 1000 * 60 * 0,
   });
 
-export const useWeeklyTrendingPrompts = (
-  params: { limit?: number } = {},
-) =>
+export const useWeeklyTrendingPrompts = (params: { limit?: number } = {}) =>
   useQuery({
     queryKey: queryKeys.trending.list({ window: "WEEKLY", ...params }),
     queryFn: () =>

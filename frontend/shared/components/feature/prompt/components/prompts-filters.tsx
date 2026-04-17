@@ -35,7 +35,13 @@ const toRoute = (params: PromptListParams) => {
   return serialized ? `/prompts?${serialized}` : "/prompts";
 };
 
-export function PromptsFilters({ params }: { params: PromptListParams }) {
+export function PromptsFilters({
+  params,
+  onApply,
+}: {
+  params: PromptListParams;
+  onApply?: () => void;
+}) {
   const router = useRouter();
   const { data } = useQuery({
     queryKey: queryKeys.categories.list({ limit: 20, isActive: true }),
@@ -45,6 +51,11 @@ export function PromptsFilters({ params }: { params: PromptListParams }) {
   });
 
   const categories = data?.data.data ?? [];
+
+  const navigate = (nextParams: PromptListParams) => {
+    router.push(toRoute(nextParams));
+    onApply?.();
+  };
 
   return (
     <div className="space-y-6">
@@ -74,7 +85,7 @@ export function PromptsFilters({ params }: { params: PromptListParams }) {
             variant="ghost"
             size="sm"
             className="h-8 px-2 text-xs"
-            onClick={() => router.push("/prompts")}
+            onClick={() => navigate({ sortBy: params.sortBy || "latest" })}
           >
             Clear All
           </Button>
@@ -96,14 +107,12 @@ export function PromptsFilters({ params }: { params: PromptListParams }) {
                   : "border-border hover:bg-muted/50"
               }`}
               onClick={() =>
-                router.push(
-                  toRoute({
-                    ...params,
-                    page: 1,
-                    category:
-                      params.category === category.slug ? undefined : category.slug,
-                  }),
-                )
+                navigate({
+                  ...params,
+                  page: undefined,
+                  category:
+                    params.category === category.slug ? undefined : category.slug,
+                })
               }
             >
               <span>{category.name}</span>
@@ -128,13 +137,11 @@ export function PromptsFilters({ params }: { params: PromptListParams }) {
                   : "border-border hover:bg-muted/50"
               }`}
               onClick={() =>
-                router.push(
-                  toRoute({
-                    ...params,
-                    page: 1,
-                    model: params.model === model.id ? undefined : model.id,
-                  }),
-                )
+                navigate({
+                  ...params,
+                  page: undefined,
+                  model: params.model === model.id ? undefined : model.id,
+                })
               }
             >
               <span>{model.label}</span>

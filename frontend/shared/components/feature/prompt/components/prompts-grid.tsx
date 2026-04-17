@@ -2,38 +2,57 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, Heart, MessageSquare } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Eye, Heart, LoaderCircle } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { Card } from "@/shared/components/ui/card";
 import type { Pagination } from "@/shared/api/types";
 import { ROUTES } from "@/shared/lib/routes";
 import { formatModelLabel } from "@/shared/lib/utils";
 import type { Prompt } from "../types";
 import { NoData } from "@/shared/components/common/common-components/NoData";
-import CommonPagination from "@/shared/components/common/common-components/pagination";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function PromptsGrid({
   prompts,
   pagination,
+  total,
   isLoading,
   isError,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
 }: {
   prompts: Prompt[];
   pagination?: Pagination;
+  total: number;
   isLoading: boolean;
   isError: boolean;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onLoadMore: () => void;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(page));
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          onLoadMore();
+        }
+      },
+      {
+        rootMargin: "250px 0px",
+      },
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
   if (isLoading) return <div>Loading prompts...</div>;
   if (isError) return <div>Failed to load prompts.</div>;
@@ -43,99 +62,22 @@ export function PromptsGrid({
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+        <p className="text-sm text-muted-foreground">
+          Showing <span className="font-medium text-foreground">{prompts.length}</span>{" "}
+          of <span className="font-medium text-foreground">{total}</span> prompts
+        </p>
+        {hasNextPage ? (
+          <p className="text-xs text-muted-foreground">
+            More prompts will load as you scroll
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">You have reached the end</p>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4">
         {prompts.map((prompt) => (
-          // <Card
-          //   key={prompt.id}
-          //   className="group overflow-hidden border-border bg-card p-0 transition-all duration-200 hover:shadow-lg h-full flex flex-col"
-          // >
-          //   <div className="relative aspect-square overflow-hidden bg-black">
-          //     {prompt.imageUrl && (
-          //       <Image
-          //         src={prompt.imageUrl}
-          //         alt=""
-          //         fill
-          //         className="object-cover scale-110 blur-lg brightness-50 opacity-60"
-          //         aria-hidden
-          //       />
-          //     )}
-          //     <Image
-          //       src={prompt.imageUrl || "/placeholder.svg"}
-          //       alt={prompt.title}
-          //       fill
-          //       className="object-contain transition-transform duration-300 group-hover:scale-105"
-          //     />
-          //     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          //     <div className="absolute left-3 top-3 flex flex-wrap items-center gap-2">
-          //       <Badge variant="secondary" className="text-xs backdrop-blur-sm">
-          //         {prompt.category.name}
-          //       </Badge>
-          //       <Badge
-          //         variant="outline"
-          //         className="bg-background/90 text-xs backdrop-blur-sm"
-          //       >
-          //         {formatModelLabel(prompt.modelType)}
-          //       </Badge>
-          //     </div>
-          //   </div>
-
-          //   <CardContent className="p-3 flex flex-col flex-grow">
-          //     <Link href={`/prompts/${prompt.slug}`}>
-          //       <h3 className="mb-3 cursor-pointer font-semibold text-card-foreground transition-colors group-hover:text-primary line-clamp-2 ">
-          //         {prompt.title}
-          //       </h3>
-          //     </Link>
-
-          //     <p className="mb-4 line-clamp-3 text-sm text-muted-foreground flex-grow">
-          //       {prompt.shortDescription ||
-          //         "Curated prompt ready for your workflow."}
-          //     </p>
-
-          //     <div className="mt-auto">
-          //       {/* <div className="mb-4 flex flex-wrap gap-1">
-          //         {prompt.tags.slice(0, 3).map(({ tag }) => (
-          //           <Badge key={tag.id} variant="outline" className="text-xs">
-          //             #{tag.name}
-          //           </Badge>
-          //         ))}
-          //         {prompt.tags.length > 3 ? (
-          //           <Badge variant="outline" className="text-xs">
-          //             +{prompt.tags.length - 3}
-          //           </Badge>
-          //         ) : null}
-          //       </div> */}
-
-          //       <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground">
-          //         <div className="flex items-center gap-3">
-          //           <span className="flex items-center gap-1">
-          //             <Eye className="h-3 w-3" />
-          //             {prompt.viewsCount.toLocaleString()}
-          //           </span>
-          //           <span className="flex items-center gap-1">
-          //             <Heart className="h-3 w-3" />
-          //             {prompt.likesCount.toLocaleString()}
-          //           </span>
-          //           <span className="flex items-center gap-1">
-          //             <MessageSquare className="h-3 w-3" />
-          //             {prompt.commentsCount.toLocaleString()}
-          //           </span>
-          //         </div>
-          //         <Link
-          //           href={ROUTES.PROFILE(prompt.createdBy.slug)}
-          //           className="transition-colors hover:text-primary"
-          //         >
-          //           by{" "}
-          //           {prompt.createdBy.profile?.displayName ||
-          //             prompt.createdBy.username}
-          //         </Link>
-          //       </div>
-
-          //       <Button asChild size="sm" className="w-full">
-          //         <Link href={ROUTES.PROMPT(prompt.slug)}>Open Prompt</Link>
-          //       </Button>
-          //     </div>
-          //   </CardContent>
-          // </Card>
           <Card
             key={prompt.id}
             className="group overflow-hidden rounded-none border-0 bg-card p-0 transition-all duration-200 hover:shadow-lg"
@@ -161,12 +103,6 @@ export function PromptsGrid({
                 <Badge variant="secondary" className="text-xs backdrop-blur-sm">
                   {formatModelLabel(prompt.modelType)}
                 </Badge>
-                {/* <Badge
-                      variant="secondary"
-                      className="text-xs backdrop-blur-sm"
-                    >
-                      {prompt.category.name}
-                    </Badge> */}
               </div>
               <Link
                 href={`/prompts/${prompt.slug}`}
@@ -175,16 +111,9 @@ export function PromptsGrid({
                 <span className="sr-only">Open {prompt.title}</span>
               </Link>
               <div className="absolute inset-x-0 bottom-0 p-4">
-                {/* <p className="mb-2 text-xs text-white/80">
-                      {formatModelLabel(prompt.modelType)}
-                    </p> */}
                 <h3 className="font-semibold text-xs text-white line-clamp-1">
                   {prompt.title}
                 </h3>
-                {/* <p className="mt-1 line-clamp-2 text-sm text-white/80">
-                      {prompt.shortDescription ||
-                        "Curated prompt ready to copy and use."}
-                    </p> */}
                 <div className="mt-3 flex items-center justify-between text-xs text-white/90">
                   <div className="flex items-center gap-3 text-xs">
                     <span className="flex items-center gap-1">
@@ -211,11 +140,19 @@ export function PromptsGrid({
         ))}
       </div>
 
-      {pagination ? (
-        <CommonPagination
-          pagination={pagination}
-          onPageChange={handlePageChange}
-        />
+      <div ref={loadMoreRef} className="h-10 w-full" />
+
+      {isFetchingNextPage ? (
+        <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
+          <LoaderCircle className="h-4 w-4 animate-spin" />
+          Loading more prompts...
+        </div>
+      ) : null}
+
+      {!hasNextPage && pagination ? (
+        <div className="py-4 text-center text-sm text-muted-foreground">
+          Showing all {pagination.total} prompts in this result set.
+        </div>
       ) : null}
     </div>
   );
