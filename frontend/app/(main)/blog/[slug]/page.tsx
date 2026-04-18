@@ -121,7 +121,7 @@ The future of logo design is here, and with the right prompts, you can create pr
       publishedAt: "2024-01-15",
       author: {
         name: "Sarah Chen",
-        avatar: "/placeholder.svg?height=40&width=40",
+        avatar: "/img/placeholder-user.jpg?height=40&width=40",
         bio: "AI Art Specialist with 5+ years in digital design",
       },
       views: 12500,

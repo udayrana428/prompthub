@@ -23,6 +23,11 @@ export const queryKeys = {
     profile: (username: string) => ["user", "profile", username] as const,
     me: () => ["user", "me"] as const,
   },
+  users: {
+    all: ["users"] as const,
+    profile: (slug: string) => ["users", "profile", slug] as const,
+    prompts: (slug: string) => ["users", "prompts", slug] as const,
+  },
   social: {
     all: ["social"] as const,
     followers: (userId: string, params: object = {}) =>

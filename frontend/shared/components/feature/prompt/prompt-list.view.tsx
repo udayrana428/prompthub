@@ -55,7 +55,7 @@ const PromptListPage = () => {
           <DrawerHeader className="border-b border-border pb-4">
             <DrawerTitle>Filter Prompts</DrawerTitle>
             <DrawerDescription>
-              Refine the catalog by category and model without leaving the page.
+              Use the filters to refine your search.
             </DrawerDescription>
           </DrawerHeader>
           <ScrollArea className="flex-1 overflow-y-auto px-4 pb-6">

@@ -9,7 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Avatar,
@@ -227,7 +232,10 @@ function ConnectionsList({
             >
               <Avatar className="h-12 w-12">
                 <AvatarImage
-                  src={connection.user.profile?.avatarUrl || "/placeholder.svg"}
+                  src={
+                    connection.user.profile?.avatarUrl ||
+                    "/img/placeholder-user.jpg"
+                  }
                   alt={displayName}
                 />
                 <AvatarFallback>{avatarFallback}</AvatarFallback>

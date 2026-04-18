@@ -22,7 +22,7 @@ const blogPosts = [
     publishedAt: "2024-01-15",
     author: {
       name: "Sarah Chen",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/img/placeholder-user.jpg?height=40&width=40",
       bio: "AI Art Specialist",
     },
     views: 12500,
@@ -41,7 +41,7 @@ const blogPosts = [
     publishedAt: "2024-01-12",
     author: {
       name: "Alex Rodriguez",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/img/placeholder-user.jpg?height=40&width=40",
       bio: "Digital Artist",
     },
     views: 8900,
@@ -60,7 +60,7 @@ const blogPosts = [
     publishedAt: "2024-01-10",
     author: {
       name: "Maya Patel",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/img/placeholder-user.jpg?height=40&width=40",
       bio: "Content Creator",
     },
     views: 15200,
@@ -79,7 +79,7 @@ const blogPosts = [
     publishedAt: "2024-01-08",
     author: {
       name: "David Kim",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/img/placeholder-user.jpg?height=40&width=40",
       bio: "Photography Expert",
     },
     views: 6700,
@@ -98,7 +98,7 @@ const blogPosts = [
     publishedAt: "2024-01-05",
     author: {
       name: "Emma Thompson",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/img/placeholder-user.jpg?height=40&width=40",
       bio: "Trend Analyst",
     },
     views: 9800,
@@ -117,7 +117,7 @@ const blogPosts = [
     publishedAt: "2024-01-03",
     author: {
       name: "Michael Foster",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "/img/placeholder-user.jpg?height=40&width=40",
       bio: "AI Researcher",
     },
     views: 18500,
@@ -166,7 +166,9 @@ export function BlogGrid() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={post.author.avatar || "/placeholder.svg"}
+                          src={
+                            post.author.avatar || "/img/placeholder-user.jpg"
+                          }
                           alt={post.author.name}
                         />
                         <AvatarFallback>{post.author.name[0]}</AvatarFallback>
@@ -248,7 +250,9 @@ export function BlogGrid() {
                       <div className="flex items-center gap-3">
                         <Avatar className="h-6 w-6">
                           <AvatarImage
-                            src={post.author.avatar || "/placeholder.svg"}
+                            src={
+                              post.author.avatar || "/img/placeholder-user.jpg"
+                            }
                             alt={post.author.name}
                           />
                           <AvatarFallback className="text-xs">

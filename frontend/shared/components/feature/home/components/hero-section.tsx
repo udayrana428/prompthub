@@ -10,18 +10,18 @@ import Link from "next/link";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 const galleryImages = [
-  "https://images.unsplash.com/photo-1771515220905-ba0784fb7522?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBSSUyMGdlbmVyYXRlZCUyMGFydCUyMGN5YmVycHVua3xlbnwxfHx8fDE3NzQyMDk5MTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1670073952001-1aafed4bfc02?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmYW50YXN5JTIwZGlnaXRhbCUyMGFydHxlbnwxfHx8fDE3NzQyMDk5MDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1705254613735-1abb457f8a60?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvbG9yZnVsJTIwYXJ0d29ya3xlbnwxfHx8fDE3NzQxNzM4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1728995025396-b5141e209455?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmdXR1cmlzdGljJTIwbGFuZHNjYXBlJTIwZGlnaXRhbHxlbnwxfHx8fDE3NzQyMDk5MTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1620983626305-88db754c9a29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuZW9uJTIwY2l0eSUyMG5pZ2h0fGVufDF8fHx8MTc3NDE5NzA5NXww&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1744138038271-2ffa619dcedf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGFjZSUyMG5lYnVsYSUyMGNvbG9yZnVsfGVufDF8fHx8MTc3NDIwOTkxMXww&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1634320714682-ae8b9c9cee60?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaWdpdGFsJTIwcGFpbnRpbmclMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzQyMDk5MTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1633334241793-ddb42c1749d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2ktZmklMjBhcmNoaXRlY3R1cmV8ZW58MXx8fHwxNzc0MjA5OTEyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1769265114376-50b2a7528258?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWJyYW50JTIwaWxsdXN0cmF0aW9uJTIwYXJ0fGVufDF8fHx8MTc3NDIwMjM1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1759083937558-e81d4e949a4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXJyZWFsJTIwZHJlYW1saWtlJTIwYXJ0fGVufDF8fHx8MTc3NDIwOTkxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1666302707255-13651d539be5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHwzZCUyMHJlbmRlciUyMGFic3RyYWN0fGVufDF8fHx8MTc3NDE4OTk1OXww&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1669780080319-ac38af934355?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMGdyYWRpZW50JTIwYmFja2dyb3VuZHxlbnwxfHx8fDE3NzQxNjY5NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+  "/img/landing/hero-img1.jpeg",
+  "/img/landing/hero-img2.jpeg",
+  "/img/landing/hero-img3.jpeg",
+  "/img/landing/hero-img4.jpeg",
+  "/img/landing/hero-img5.jpeg",
+  "/img/landing/hero-img6.jpeg",
+  "/img/landing/hero-img7.jpeg",
+  "/img/landing/hero-img8.jpeg",
+  "/img/landing/hero-img9.jpeg",
+  "/img/landing/hero-img10.jpeg",
+  "/img/landing/hero-img11.jpeg",
+  "/img/landing/hero-img12.jpeg",
 ];
 
 // ─── Desktop: vertical scrolling column ───────────────────────────────────────

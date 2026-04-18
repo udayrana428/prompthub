@@ -66,7 +66,7 @@ const users = [
     id: 1,
     name: "Alice Johnson",
     email: "alice@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "/img/placeholder-user.jpg?height=40&width=40",
     role: "user",
     status: "active",
     joinDate: "2024-01-15",
@@ -80,7 +80,7 @@ const users = [
     id: 2,
     name: "Bob Smith",
     email: "bob@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "/img/placeholder-user.jpg?height=40&width=40",
     role: "moderator",
     status: "active",
     joinDate: "2024-02-20",
@@ -94,7 +94,7 @@ const users = [
     id: 3,
     name: "Carol Davis",
     email: "carol@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "/img/placeholder-user.jpg?height=40&width=40",
     role: "user",
     status: "suspended",
     joinDate: "2024-03-10",
@@ -108,7 +108,7 @@ const users = [
     id: 4,
     name: "David Wilson",
     email: "david@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "/img/placeholder-user.jpg?height=40&width=40",
     role: "admin",
     status: "active",
     joinDate: "2023-12-01",
@@ -122,7 +122,7 @@ const users = [
     id: 5,
     name: "Eva Martinez",
     email: "eva@example.com",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "/img/placeholder-user.jpg?height=40&width=40",
     role: "user",
     status: "banned",
     joinDate: "2024-04-05",
@@ -289,7 +289,7 @@ export function UserManagement() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarImage
-                            src={user.avatar || "/placeholder.svg"}
+                            src={user.avatar || "/img/placeholder-user.jpg"}
                             alt={user.name}
                           />
                           <AvatarFallback>
@@ -410,7 +410,7 @@ export function UserManagement() {
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage
-                    src={selectedUser.avatar || "/placeholder.svg"}
+                    src={selectedUser.avatar || "/img/placeholder-user.jpg"}
                     alt={selectedUser.name}
                   />
                   <AvatarFallback>

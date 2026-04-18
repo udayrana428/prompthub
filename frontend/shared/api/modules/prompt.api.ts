@@ -62,6 +62,7 @@ export interface PromptMutationPayload {
   shortDescription?: string;
   description?: string;
   modelType?: string;
+  status?: "DRAFT" | "PENDING";
   tags?: string[];
   tips?: string[];
   variations?: string[];
@@ -98,6 +99,7 @@ const appendPromptFormData = (payload: PromptMutationPayload) => {
     shortDescription: payload.shortDescription?.trim() ?? "",
     description: payload.description?.trim() ?? "",
     modelType: payload.modelType ?? "OTHER",
+    status: payload.status ?? "PENDING",
     tags: payload.tags?.map((tag) => tag.trim()) ?? [],
     tips: payload.tips?.map((tip) => tip.trim()) ?? [],
     variations: payload.variations?.map((variation) => variation.trim()) ?? [],

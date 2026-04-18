@@ -20,7 +20,14 @@ export const getTopPromptsByWindow = async (
   if (!latestDate) return [];
 
   return prisma.promptTrendingSnapshot.findMany({
-    where: { windowType, snapshotDate: latestDate },
+    where: {
+      windowType,
+      snapshotDate: latestDate,
+      prompt: {
+        status: "APPROVED",
+        deletedOn: null,
+      },
+    },
     orderBy: { rank: "asc" },
     take: limit,
     include: {

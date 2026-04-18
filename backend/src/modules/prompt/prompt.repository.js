@@ -112,6 +112,23 @@ const buildPromptAdminDetailInclude = {
   variations: true,
 };
 
+const syncApprovedPromptCount = async (userId, tx = prisma) => {
+  if (!userId) return;
+
+  const approvedCount = await tx.prompt.count({
+    where: {
+      createdById: userId,
+      deletedOn: null,
+      status: "APPROVED",
+    },
+  });
+
+  await tx.profile.update({
+    where: { userId },
+    data: { promptCount: approvedCount },
+  });
+};
+
 export const mapPromptViewerState = (prompt) => {
   if (!prompt) return prompt;
 
@@ -205,8 +222,8 @@ export const findEditablePromptById = (id) =>
     },
   });
 
-export const createPrompt = (data, tx = prisma) =>
-  tx.prompt.create({
+export const createPrompt = async (data, tx = prisma) => {
+  const prompt = await tx.prompt.create({
     data,
     include: {
       tags: { include: { tag: true } },
@@ -215,14 +232,25 @@ export const createPrompt = (data, tx = prisma) =>
     },
   });
 
-export const updatePrompt = (id, data, tx = prisma) =>
-  tx.prompt.update({ where: { id }, data });
+  await syncApprovedPromptCount(prompt.createdById, tx);
+  return prompt;
+};
 
-export const softDeletePrompt = (id, deletedById) =>
-  prisma.prompt.update({
+export const updatePrompt = async (id, data, tx = prisma) => {
+  const prompt = await tx.prompt.update({ where: { id }, data });
+  await syncApprovedPromptCount(prompt.createdById, tx);
+  return prompt;
+};
+
+export const softDeletePrompt = async (id, deletedById) => {
+  const prompt = await prisma.prompt.update({
     where: { id },
     data: { deletedOn: new Date(), deletedById, status: "ARCHIVED" },
   });
+
+  await syncApprovedPromptCount(prompt.createdById);
+  return prompt;
+};
 
 export const incrementViewCount = (id) =>
   prisma.prompt.update({
@@ -353,10 +381,15 @@ export const updatePromptStatus = (
   rejectionReason = null,
   tx = prisma,
 ) =>
-  tx.prompt.update({
-    where: { id: promptId },
-    data: {
-      status,
-      ...(rejectionReason !== null && { rejectionReason }),
-    },
-  });
+  tx.prompt
+    .update({
+      where: { id: promptId },
+      data: {
+        status,
+        ...(rejectionReason !== null && { rejectionReason }),
+      },
+    })
+    .then(async (prompt) => {
+      await syncApprovedPromptCount(prompt.createdById, tx);
+      return prompt;
+    });

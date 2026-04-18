@@ -102,7 +102,7 @@ export function Header() {
             </Link>
           </Button>
           <Button asChild size="sm">
-            <Link href={ROUTES.SIGNUP}>Create Account</Link>
+            <Link href={ROUTES.SIGNUP}>Get Started</Link>
           </Button>
         </>
       );
@@ -185,65 +185,24 @@ export function Header() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" inPortal className="w-56">
         <DropdownMenuItem asChild>
-          <Link href="/prompts">Browse Prompts</Link>
+          <Link href="/prompts">
+            <Search className="mr-2 h-4 w-4" />
+            Browse Prompts
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/blog">Blog</Link>
+          <Link href="/blog">
+            <BookOpen className="mr-2 h-4 w-4" />
+            Blog
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        {!isInitialized ? (
-          <div className="space-y-2 p-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-        ) : isAuthenticated && user ? (
-          <>
-            <DropdownMenuLabel>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">{displayName}</p>
-                <p className="text-xs text-muted-foreground">
-                  @{user.username}
-                </p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/account">My Account</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/account/my-prompts">My Prompts</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/account/saved-prompts">Saved Prompts</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/account/settings">Settings</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="w-full"
-              onSelect={(event) => {
-                event.preventDefault();
-                void handleLogout();
-              }}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? "Signing out..." : "Sign Out"}
-            </DropdownMenuItem>
-          </>
-        ) : (
-          <>
-            <DropdownMenuItem asChild>
-              <Link href={ROUTES.LOGIN} className="flex items-center">
-                <User className="mr-2 h-4 w-4" />
-                Sign In
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={ROUTES.SIGNUP}>Create Account</Link>
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuItem asChild>
+          <Link href={ROUTES.LOGIN} className="flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            Sign In
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -294,7 +253,8 @@ export function Header() {
               <ThemeToggle />
               <NotificationBell />
               {renderDesktopAuth()}
-              {/* {renderMobileMenu()} */}
+              {!isInitialized && <Skeleton className="h-8 w-8" />}
+              {isInitialized && !isAuthenticated && !user && renderMobileMenu()}
             </div>
           </div>
         </div>

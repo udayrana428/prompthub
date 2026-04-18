@@ -1,13 +1,22 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { authApi, promptApi, userApi } from "@/shared/api";
 import { queryKeys } from "@/shared/lib/react-query/keys";
 import { useAppDispatch, useAppSelector } from "@/shared/redux/hooks";
 import { setAuth, type AuthUser } from "@/shared/redux/slices/auth.slice";
 import type {
+  FavoritePrompt,
   UpdateProfilePayload,
+  UserFavoritesResponse,
+  UserPrompt,
   UserPromptListParams,
+  UserPromptsResponse,
 } from "@/shared/api/modules/user.api";
 import type { PromptMutationPayload } from "@/shared/api/modules/prompt.api";
 
@@ -31,6 +40,25 @@ const normalizeUser = (user: any): AuthUser => ({
   profile: user?.profile ?? null,
 });
 
+const getNextPageParam = <
+  TPage extends UserPromptsResponse | UserFavoritesResponse,
+>(
+  lastPage: TPage,
+) => {
+  const pagination = lastPage.data.pagination;
+  return pagination.hasNextPage ? pagination.page + 1 : undefined;
+};
+
+export const flattenInfiniteItems = <TItem,>(
+  pages?: Array<{ data: { data: TItem[] } }>,
+) => pages?.flatMap((page) => page.data.data) ?? [];
+
+export const getInfiniteTotal = <
+  TPage extends UserPromptsResponse | UserFavoritesResponse,
+>(
+  pages?: TPage[],
+) => pages?.[0]?.data.pagination.total ?? 0;
+
 export const useCurrentAuthUser = () =>
   useAppSelector((state) => state.auth.user);
 
@@ -47,10 +75,17 @@ export const useCurrentUserProfile = () => {
 
 export const useMyPrompts = (params?: UserPromptListParams) => {
   const user = useCurrentAuthUser();
+  const { page: _page, ...restParams } = params ?? {};
 
-  return useQuery({
-    queryKey: ["account", "my-prompts", user?.slug ?? "current", params ?? {}],
-    queryFn: () => userApi.getUserPrompts(user!.slug, params),
+  return useInfiniteQuery<UserPromptsResponse>({
+    queryKey: ["account", "my-prompts", user?.slug ?? "current", restParams],
+    initialPageParam: params?.page ?? 1,
+    queryFn: ({ pageParam }) =>
+      userApi.getUserPrompts(user!.slug, {
+        ...restParams,
+        page: Number(pageParam),
+      }),
+    getNextPageParam,
     enabled: !!user?.slug,
     ...accountQueryOptions,
   });
@@ -59,9 +94,15 @@ export const useMyPrompts = (params?: UserPromptListParams) => {
 export const useSavedPrompts = (
   params?: Pick<UserPromptListParams, "page" | "limit">,
 ) =>
-  useQuery({
-    queryKey: ["account", "saved-prompts", params ?? {}],
-    queryFn: () => userApi.getMyFavorites(params),
+  useInfiniteQuery<UserFavoritesResponse>({
+    queryKey: ["account", "saved-prompts", { limit: params?.limit }],
+    initialPageParam: params?.page ?? 1,
+    queryFn: ({ pageParam }) =>
+      userApi.getMyFavorites({
+        ...params,
+        page: Number(pageParam),
+      }),
+    getNextPageParam,
     ...accountQueryOptions,
   });
 

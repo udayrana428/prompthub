@@ -17,6 +17,12 @@ import { MSG } from "../../constants/messages.js";
 export const getPublicProfile = async (slug, viewerId) => {
   const user = await userRepo.findUserBySlug(slug);
   if (!user) throw ApiError.notFound(MSG.USER.NOT_FOUND);
+  const approvedPromptCount = await userRepo.countApprovedPromptsByUser(user.id);
+
+  if (user.profile && user.profile.promptCount !== approvedPromptCount) {
+    await userRepo.updatePromptCount(user.id, approvedPromptCount);
+    user.profile.promptCount = approvedPromptCount;
+  }
 
   const isFollowedByViewer =
     !!viewerId &&

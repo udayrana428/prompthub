@@ -25,13 +25,15 @@ export function NotificationBell() {
   const { isAuthenticated, isInitialized } = useAppSelector(
     (state) => state.auth,
   );
-  const notificationsQuery = useNotifications(
-    { page: 1, limit: 10 },
-    {
-      enabled: isAuthenticated,
-      refetchInterval: isAuthenticated ? 30000 : false,
-    },
-  );
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useNotifications(
+      { limit: 10 },
+      {
+        enabled: isAuthenticated,
+        refetchInterval: isAuthenticated ? 30000 : false,
+      },
+    );
+
   const markOneRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
 
@@ -43,8 +45,8 @@ export function NotificationBell() {
     return null;
   }
 
-  const notifications = notificationsQuery.data?.data.data ?? [];
-  const unreadCount = notificationsQuery.data?.data.unreadCount ?? 0;
+  const notifications = data?.pages.flatMap((page) => page.data.data) ?? [];
+  const unreadCount = data?.pages[0]?.data.unreadCount ?? 0;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -96,13 +98,14 @@ export function NotificationBell() {
           <NotificationList
             compact
             notifications={notifications}
-            isLoading={notificationsQuery.isLoading}
+            isLoading={isLoading}
+            hasNextPage={!!hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={() => fetchNextPage()}
             emptyMessage="New activity like follows, likes, comments, and moderation updates will show up here."
             onNotificationClick={(notification) => {
               setOpen(false);
-              if (!notification.isRead) {
-                markOneRead.mutate(notification.id);
-              }
+              if (!notification.isRead) markOneRead.mutate(notification.id);
             }}
           />
         </div>

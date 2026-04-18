@@ -201,7 +201,7 @@ export function PromptDetail({ id }: { id: string }) {
             <CardContent className="p-0">
               <div className="overflow-hidden rounded-xl border border-border bg-black">
                 <img
-                  src={prompt.imageUrl || "/placeholder.svg"}
+                  src={prompt.imageUrl || "/img/placeholder.svg"}
                   alt={prompt.title}
                   className="h-[420px] w-full object-contain"
                 />

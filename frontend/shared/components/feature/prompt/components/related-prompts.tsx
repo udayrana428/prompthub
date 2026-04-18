@@ -64,7 +64,7 @@ export function RelatedPrompts({
               //       />
               //     )}
               //     <Image
-              //       src={prompt.imageUrl || "/placeholder.svg"}
+              //       src={prompt.imageUrl || "/img/placeholder.svg"}
               //       alt={prompt.title}
               //       fill
               //       className="object-contain transition-transform duration-300 group-hover:scale-105"
@@ -126,7 +126,7 @@ export function RelatedPrompts({
                     />
                   )}
                   <Image
-                    src={prompt.imageUrl || "/placeholder.svg"}
+                    src={prompt.imageUrl || "/img/placeholder.svg"}
                     alt={prompt.title}
                     fill
                     className="object-contain transition-transform duration-300 group-hover:scale-110 group-hover:brightness-50"

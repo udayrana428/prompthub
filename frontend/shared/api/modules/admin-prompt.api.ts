@@ -76,7 +76,8 @@ export interface AdminPromptListParams {
   sortBy?: "latest" | "oldest" | "popular" | "mostViewed";
 }
 
-export interface AdminPromptFormPayload extends PromptMutationPayload {
+export interface AdminPromptFormPayload
+  extends Omit<PromptMutationPayload, "status"> {
   status?: string;
   featured?: boolean;
   rejectionReason?: string;

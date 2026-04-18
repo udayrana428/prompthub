@@ -136,7 +136,8 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
                 <Avatar className="h-10 w-10">
                   <AvatarImage
                     src={
-                      prompt.createdBy.profile?.avatarUrl || "/placeholder.svg"
+                      prompt.createdBy.profile?.avatarUrl ||
+                      "/img/placeholder-user.jpg"
                     }
                     alt={authorName}
                   />
@@ -192,7 +193,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
               />
             )}
             <Image
-              src={prompt.imageUrl || "/placeholder.svg"}
+              src={prompt.imageUrl || "/img/placeholder.svg"}
               alt={prompt.title}
               fill
               className="object-contain"

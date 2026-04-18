@@ -37,10 +37,13 @@ export const computeAndSaveSnapshots = async (windowType) => {
   const since = getWindowStart(windowType);
 
   // Get windowed activity counts (the fix — not lifetime counters)
-  const activityMap =
-    await trendingRepo.getWindowedActivityForAllPrompts(since);
+  const [activityMap, activePrompts] = await Promise.all([
+    trendingRepo.getWindowedActivityForAllPrompts(since),
+    trendingRepo.getActivePromptIds(since),
+  ]);
 
   if (activityMap.size === 0) return 0;
+  const activePromptIds = new Set(activePrompts.map((prompt) => prompt.id));
 
   // Score and rank
   const scored = [...activityMap.entries()]
@@ -49,6 +52,7 @@ export const computeAndSaveSnapshots = async (windowType) => {
       ...counts,
       score: calculateScore(counts),
     }))
+    .filter((prompt) => activePromptIds.has(prompt.promptId))
     .filter((p) => p.score > 0)
     .sort((a, b) => b.score - a.score);
 

@@ -82,7 +82,7 @@ const prompts = [
     category: "Fantasy",
     tags: ["dragon", "cyberpunk", "neon", "fantasy", "detailed"],
     author: "Alice Johnson",
-    authorAvatar: "/placeholder.svg?height=32&width=32",
+    authorAvatar: "/img/placeholder-user.jpg?height=32&width=32",
     status: "approved",
     featured: true,
     createdAt: "2024-12-15",
@@ -103,7 +103,7 @@ const prompts = [
     category: "Portrait",
     tags: ["business", "professional", "portrait", "headshot", "corporate"],
     author: "Bob Smith",
-    authorAvatar: "/placeholder.svg?height=32&width=32",
+    authorAvatar: "/img/placeholder-user.jpg?height=32&width=32",
     status: "pending",
     featured: false,
     createdAt: "2024-12-18",
@@ -124,7 +124,7 @@ const prompts = [
     category: "Anime",
     tags: ["anime", "warrior", "character", "armor", "mystical"],
     author: "Carol Davis",
-    authorAvatar: "/placeholder.svg?height=32&width=32",
+    authorAvatar: "//img/placeholder-user.jpg?height=32&width=32",
     status: "rejected",
     featured: false,
     createdAt: "2024-12-10",
@@ -145,7 +145,7 @@ const prompts = [
     category: "Sci-Fi",
     tags: ["futuristic", "city", "flying cars", "sci-fi", "metropolis"],
     author: "David Wilson",
-    authorAvatar: "/placeholder.svg?height=32&width=32",
+    authorAvatar: "/img/placeholder-user.jpg?height=32&width=32",
     status: "approved",
     featured: false,
     createdAt: "2024-12-12",
@@ -339,7 +339,7 @@ export function PromptManagement() {
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <img
-                              src={prompt.image || "/placeholder.svg"}
+                              src={prompt.image || "/img/placeholder.svg"}
                               alt={prompt.title}
                               className="h-12 w-12 rounded-lg object-cover"
                             />
@@ -363,7 +363,10 @@ export function PromptManagement() {
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-6 w-6">
                               <AvatarImage
-                                src={prompt.authorAvatar || "/placeholder.svg"}
+                                src={
+                                  prompt.authorAvatar ||
+                                  "/img/placeholder-user.jpg"
+                                }
                                 alt={prompt.author}
                               />
                               <AvatarFallback>
@@ -493,7 +496,7 @@ export function PromptManagement() {
                 {/* Image */}
                 <div className="space-y-4">
                   <img
-                    src={selectedPrompt.image || "/placeholder.svg"}
+                    src={selectedPrompt.image || "/img/placeholder.svg"}
                     alt={selectedPrompt.title}
                     className="w-full rounded-lg object-cover"
                   />
@@ -568,7 +571,8 @@ export function PromptManagement() {
                       <Avatar className="h-6 w-6">
                         <AvatarImage
                           src={
-                            selectedPrompt.authorAvatar || "/placeholder.svg"
+                            selectedPrompt.authorAvatar ||
+                            "/img/placeholder-user.jpg"
                           }
                           alt={selectedPrompt.author}
                         />

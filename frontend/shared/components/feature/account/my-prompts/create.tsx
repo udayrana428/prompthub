@@ -1,17 +1,25 @@
 "use client";
 
 import { FieldArray, Form, Formik, useField, type FormikErrors } from "formik";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { Plus, Save, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  Save,
+  Send,
+  Sparkles,
+  Trash2,
+  WandSparkles,
+} from "lucide-react";
 import { categoryApi } from "@/shared/api";
 import {
   useCreatePrompt,
   useEditablePrompt,
   useUpdatePrompt,
 } from "../hooks/use-account";
-import { createFormikValidator, scrollToFirstError } from "@/shared/lib/formik";
+import { createFormikValidator } from "@/shared/lib/formik";
 import { appToast } from "@/shared/lib/toastify/toast";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -192,6 +200,7 @@ export function PromptEditorModal({
   promptId,
 }: PromptEditorModalProps) {
   const isEditMode = !!promptId;
+  const [submitMode, setSubmitMode] = useState<"draft" | "review">("review");
   const createPrompt = useCreatePrompt();
   const updatePrompt = useUpdatePrompt();
   const { data: editablePromptResponse, isLoading: isPromptLoading } =
@@ -211,7 +220,14 @@ export function PromptEditorModal({
   );
 
   const editablePrompt = editablePromptResponse?.data.prompt;
+  const isDraftPrompt = editablePrompt?.status === "DRAFT";
   const categories = categoriesResponse?.data.data ?? [];
+
+  useEffect(() => {
+    if (open) {
+      setSubmitMode("review");
+    }
+  }, [open, promptId]);
   const categoryOptions = useMemo(
     () =>
       categories.map((category) => ({
@@ -290,6 +306,8 @@ export function PromptEditorModal({
               return errors;
             }}
             onSubmit={async (values, helpers) => {
+              const submissionStatus: "DRAFT" | "PENDING" =
+                submitMode === "draft" ? "DRAFT" : "PENDING";
               const payload = {
                 title: values.title,
                 categoryId: values.categoryId,
@@ -297,6 +315,7 @@ export function PromptEditorModal({
                 shortDescription: values.shortDescription,
                 description: values.description,
                 promptText: values.promptText,
+                status: submissionStatus,
                 tags: parseTags(values.tagsText),
                 tips: values.tips.map((tip) => tip.trim()).filter(Boolean),
                 variations: values.variations
@@ -307,12 +326,19 @@ export function PromptEditorModal({
 
               try {
                 if (isEditMode && promptId) {
-                  console.log("payloaddddddddd", payload);
                   await updatePrompt.mutateAsync({ id: promptId, payload });
-                  appToast.success("Prompt updated successfully.");
+                  appToast.success(
+                    submitMode === "draft"
+                      ? "Draft saved successfully."
+                      : "Prompt updated successfully.",
+                  );
                 } else {
                   await createPrompt.mutateAsync(payload);
-                  appToast.success("Prompt submitted successfully.");
+                  appToast.success(
+                    submitMode === "draft"
+                      ? "Draft saved successfully."
+                      : "Prompt submitted successfully.",
+                  );
                 }
 
                 helpers.resetForm();
@@ -437,8 +463,9 @@ export function PromptEditorModal({
                         </p>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        New and updated prompts go through moderation and will
-                        appear as pending until review completes.
+                        {isDraftPrompt || !isEditMode
+                          ? "Save drafts while you work, or submit when the prompt is ready for moderation."
+                          : "Updated prompts go through moderation and will appear as pending until review completes."}
                       </p>
                     </div>
                   </div>
@@ -455,24 +482,52 @@ export function PromptEditorModal({
                   >
                     Cancel
                   </Button>
+                  {!isEditMode || isDraftPrompt ? (
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      onClick={() => setSubmitMode("draft")}
+                      disabled={
+                        isSubmitting ||
+                        createPrompt.isPending ||
+                        updatePrompt.isPending
+                      }
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      {isSubmitting &&
+                      (createPrompt.isPending || updatePrompt.isPending) &&
+                      submitMode === "draft"
+                        ? "Saving Draft..."
+                        : "Save Draft"}
+                    </Button>
+                  ) : null}
                   <Button
                     type="submit"
+                    onClick={() => setSubmitMode("review")}
                     disabled={
                       isSubmitting ||
                       createPrompt.isPending ||
                       updatePrompt.isPending
                     }
                   >
-                    <Save className="mr-2 h-4 w-4" />
+                    {isEditMode && !isDraftPrompt ? (
+                      <Save className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Send className="mr-2 h-4 w-4" />
+                    )}
                     {isSubmitting ||
                     createPrompt.isPending ||
                     updatePrompt.isPending
-                      ? isEditMode
-                        ? "Updating..."
-                        : "Saving..."
+                      ? submitMode === "draft"
+                        ? "Saving Draft..."
+                        : isEditMode
+                          ? "Submitting..."
+                          : "Submitting..."
                       : isEditMode
-                        ? "Update Prompt"
-                        : "Save Prompt"}
+                        ? isDraftPrompt
+                          ? "Submit for Review"
+                          : "Save Changes"
+                        : "Submit for Review"}
                   </Button>
                 </DialogFooter>
               </Form>

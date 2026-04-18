@@ -51,6 +51,21 @@ export const findUsers = ({ where, skip, take }) =>
 
 export const countUsers = (where) => prisma.user.count({ where });
 
+export const countApprovedPromptsByUser = (userId) =>
+  prisma.prompt.count({
+    where: {
+      createdById: userId,
+      deletedOn: null,
+      status: "APPROVED",
+    },
+  });
+
+export const updatePromptCount = (userId, promptCount) =>
+  prisma.profile.update({
+    where: { userId },
+    data: { promptCount },
+  });
+
 export const updateProfile = (userId, data) =>
   prisma.profile.update({
     where: { userId },
@@ -128,18 +143,22 @@ export const getUserFavorites = ({ userId, skip, take }) =>
     take,
     orderBy: { createdOn: "desc" },
     include: {
-      prompt: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          shortDescription: true,
-          imageUrl: true,
-          modelType: true,
-          likesCount: true,
-          viewsCount: true,
-          createdOn: true,
-          category: { select: { id: true, name: true, slug: true } },
+        prompt: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            shortDescription: true,
+            imageUrl: true,
+            modelType: true,
+            status: true,
+            likesCount: true,
+            viewsCount: true,
+            commentsCount: true,
+            favoritesCount: true,
+            featured: true,
+            createdOn: true,
+            category: { select: { id: true, name: true, slug: true } },
           createdBy: {
             select: {
               id: true,

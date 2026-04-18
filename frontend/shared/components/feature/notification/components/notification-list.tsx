@@ -17,20 +17,44 @@ import {
   getNotificationHref,
   getNotificationIcon,
 } from "../notification-utils";
+import { useEffect, useRef } from "react";
+import { LoaderCircle } from "lucide-react";
 
 export function NotificationList({
   notifications,
   isLoading,
   emptyMessage,
   compact = false,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
   onNotificationClick,
 }: {
   notifications: AppNotification[];
   isLoading: boolean;
   emptyMessage: string;
   compact?: boolean;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
   onNotificationClick?: (notification: AppNotification) => void;
 }) {
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) onLoadMore?.();
+      },
+      { rootMargin: "100px 0px" },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
   const router = useRouter();
 
   if (isLoading) {
@@ -78,7 +102,7 @@ export function NotificationList({
             type="button"
             className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 ${
               notification.isRead
-                ? "border-border bg-card"
+                ? "border-border bg-card/10"
                 : "border-primary/30 bg-primary/5"
             }`}
             onClick={() => {
@@ -90,7 +114,8 @@ export function NotificationList({
               <Avatar className="h-10 w-10">
                 <AvatarImage
                   src={
-                    notification.actor?.profile?.avatarUrl || "/placeholder.svg"
+                    notification.actor?.profile?.avatarUrl ||
+                    "/img/placeholder-user.jpg"
                   }
                   alt={actorName}
                 />
@@ -126,6 +151,12 @@ export function NotificationList({
           </button>
         );
       })}
+      <div ref={loadMoreRef} className="h-4 w-full" />
+      {isFetchingNextPage && (
+        <div className="flex justify-center py-2 text-xs text-muted-foreground">
+          <LoaderCircle className="h-3 w-3 animate-spin mr-1" /> Loading more...
+        </div>
+      )}
     </div>
   );
 

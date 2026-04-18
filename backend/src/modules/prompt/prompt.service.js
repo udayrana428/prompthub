@@ -191,6 +191,8 @@ export const getPromptForEdit = async (promptId, userId) => {
 
 export const createPrompt = async (data, authorId, imageFile) => {
   if (!imageFile) throw ApiError.badRequest(MSG.PROMPT.IMAGE_REQUIRED);
+  const requestedStatus =
+    data.status === PromptStatus.DRAFT ? PromptStatus.DRAFT : PromptStatus.PENDING;
   // ── Layer 1: Synchronous blocklist (BEFORE any DB or file operations) ─────────
   const textToScreen = `${data.title} ${data.shortDescription ?? ""} ${data.description ?? ""} ${data.promptText}`;
   const screenResult = screenText(textToScreen);
@@ -243,7 +245,7 @@ export const createPrompt = async (data, authorId, imageFile) => {
           modelType: data.modelType || "OTHER",
           metaTitle: data.title,
           metaDescription: data.description,
-          status: PromptStatus.PENDING,
+          status: requestedStatus,
           createdById: authorId,
           ...(data.tips?.length && {
             tips: { create: data.tips.map((content) => ({ content })) },
@@ -270,18 +272,20 @@ export const createPrompt = async (data, authorId, imageFile) => {
 
   // ── Enqueue moderation AFTER successful transaction ────────────────────────
   // Queue failure does NOT roll back the prompt — it has its own retry mechanism
-  try {
-    await moderationQueue.add("moderate-prompt", {
-      promptId: prompt.id,
-      authorId,
-      text: textToScreen,
-    });
-  } catch (err) {
-    // Queue is down — prompt stays PENDING, admin sees it in manual review
-    logger.error(
-      `Failed to enqueue moderation for prompt ${prompt.id}:`,
-      err.message,
-    );
+  if (requestedStatus === PromptStatus.PENDING) {
+    try {
+      await moderationQueue.add("moderate-prompt", {
+        promptId: prompt.id,
+        authorId,
+        text: textToScreen,
+      });
+    } catch (err) {
+      // Queue is down — prompt stays PENDING, admin sees it in manual review
+      logger.error(
+        `Failed to enqueue moderation for prompt ${prompt.id}:`,
+        err.message,
+      );
+    }
   }
 
   return prompt;
@@ -302,6 +306,14 @@ export const updatePrompt = async (promptId, userId, data, imageFile) => {
       data.shortDescription !== existing.shortDescription) ||
     (data.description !== undefined &&
       data.description !== existing.description);
+  const requestedStatus =
+    data.status === PromptStatus.DRAFT ? PromptStatus.DRAFT : undefined;
+  const isDraftSave =
+    existing.status === PromptStatus.DRAFT &&
+    requestedStatus === PromptStatus.DRAFT;
+  const shouldSubmitForReview =
+    data.status === PromptStatus.PENDING ||
+    (existing.status === PromptStatus.DRAFT && !requestedStatus);
 
   if (contentChanged) {
     const textToScreen = [
@@ -358,7 +370,13 @@ export const updatePrompt = async (promptId, userId, data, imageFile) => {
         updateData.description = data.description;
       if (newImageUrl) updateData.imageUrl = newImageUrl;
 
-      if (contentChanged) {
+      if (isDraftSave) {
+        updateData.status = PromptStatus.DRAFT;
+      } else if (
+        shouldSubmitForReview ||
+        contentChanged ||
+        existing.status === PromptStatus.REJECTED
+      ) {
         updateData.status = PromptStatus.PENDING;
         updateData.rejectionReason = null;
       }
@@ -404,11 +422,19 @@ export const updatePrompt = async (promptId, userId, data, imageFile) => {
     );
   }
 
-  // Enqueue re-moderation if content changed
-  if (contentChanged) {
+  const shouldEnqueueModeration =
+    updated.status === PromptStatus.PENDING &&
+    (contentChanged ||
+      shouldSubmitForReview ||
+      existing.status === PromptStatus.DRAFT ||
+      existing.status === PromptStatus.REJECTED);
+
+  // Enqueue re-moderation when a draft/rejected prompt is submitted or content changes
+  if (shouldEnqueueModeration) {
     const textToModerate = [
       updated.title,
       updated.shortDescription ?? "",
+      updated.description ?? "",
       updated.promptText,
     ].join(" ");
 

@@ -5,7 +5,7 @@ export const createNotification = (data) =>
 
 export const getUserNotifications = (userId, { skip, take }) =>
   prisma.notification.findMany({
-    where: { userId, isRead: false, deletedOn: null },
+    where: { userId, deletedOn: null },
     orderBy: { createdOn: "desc" },
     skip,
     take,

@@ -169,7 +169,7 @@ export function PromptComments({ promptId }: PromptCommentsProps) {
                               <AvatarImage
                                 src={
                                   comment.user.profile?.avatarUrl ||
-                                  "/placeholder.svg"
+                                  "/img/placeholder-user.jpg"
                                 }
                                 alt={authorName}
                               />

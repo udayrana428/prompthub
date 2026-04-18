@@ -45,22 +45,13 @@ export default async function Page({
 }: {
   params: { username: string };
 }) {
-  const [profileResult, promptsResult] = await Promise.all([
+  const [profileResult] = await Promise.all([
     userApi.server.getPublicProfile(params.username),
-    userApi.server.getUserPrompts(params.username, { page: 1, limit: 12 }),
   ]);
 
   if (!profileResult.success) {
     notFound();
   }
 
-  return (
-    <PublicProfilePage
-      user={profileResult.data.user}
-      prompts={promptsResult.success ? promptsResult.data.data : []}
-      pagination={
-        promptsResult.success ? promptsResult.data.pagination : undefined
-      }
-    />
-  );
+  return <PublicProfilePage user={profileResult.data.user} />;
 }

@@ -72,7 +72,7 @@ export function BlogPost({ post }: BlogPostProps) {
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
               <AvatarImage
-                src={post.author.avatar || "/placeholder.svg"}
+                src={post.author.avatar || "/img/placeholder-user.jpg"}
                 alt={post.author.name}
               />
               <AvatarFallback>{post.author.name[0]}</AvatarFallback>
@@ -163,7 +163,7 @@ export function BlogPost({ post }: BlogPostProps) {
           <div className="flex gap-4">
             <Avatar className="h-16 w-16 flex-shrink-0">
               <AvatarImage
-                src={post.author.avatar || "/placeholder.svg"}
+                src={post.author.avatar || "/img/placeholder-user.jpg"}
                 alt={post.author.name}
               />
               <AvatarFallback className="text-lg">

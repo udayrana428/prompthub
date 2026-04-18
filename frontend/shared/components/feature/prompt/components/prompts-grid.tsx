@@ -64,15 +64,19 @@ export function PromptsGrid({
     <div className="space-y-6">
       <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-medium text-foreground">{prompts.length}</span>{" "}
-          of <span className="font-medium text-foreground">{total}</span> prompts
+          Showing{" "}
+          <span className="font-medium text-foreground">{prompts.length}</span>{" "}
+          of <span className="font-medium text-foreground">{total}</span>{" "}
+          prompts
         </p>
         {hasNextPage ? (
           <p className="text-xs text-muted-foreground">
             More prompts will load as you scroll
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground">You have reached the end</p>
+          <p className="text-xs text-muted-foreground">
+            You have reached the end
+          </p>
         )}
       </div>
 
@@ -93,7 +97,7 @@ export function PromptsGrid({
                 />
               )}
               <Image
-                src={prompt.imageUrl || "/placeholder.svg"}
+                src={prompt.imageUrl || "/img/placeholder.svg"}
                 alt={prompt.title}
                 fill
                 className="object-contain transition-transform duration-300 group-hover:scale-110 group-hover:brightness-50"

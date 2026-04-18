@@ -19,13 +19,7 @@ import { appToast } from "@/shared/lib/toastify/toast";
 import { useToggleFollowUser } from "@/shared/hooks/use-social";
 import { useAppSelector } from "@/shared/redux/hooks";
 
-export function PublicProfileHero({
-  user,
-  promptCount,
-}: {
-  user: UserAccount;
-  promptCount: number;
-}) {
+export function PublicProfileHero({ user }: { user: UserAccount }) {
   const router = useRouter();
   const currentUser = useAppSelector((state) => state.auth.user);
   const toggleFollow = useToggleFollowUser();
@@ -108,7 +102,7 @@ export function PublicProfileHero({
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
               <Avatar className="h-28 w-28 border-4 border-background shadow-lg sm:h-32 sm:w-32">
                 <AvatarImage
-                  src={profile?.avatarUrl || "/placeholder.svg"}
+                  src={profile?.avatarUrl || "/img/placeholder-user.jpg"}
                   alt={displayName}
                 />
                 <AvatarFallback className="text-3xl">{initials}</AvatarFallback>
@@ -179,28 +173,21 @@ export function PublicProfileHero({
                       : "Follow"}
                 </Button>
               ) : null}
-              <Button asChild variant="outline">
-                <Link
-                  href={`${ROUTES.PROMPTS}?search=${encodeURIComponent(user.username)}`}
-                >
-                  Browse Prompts
-                </Link>
-              </Button>
             </div>
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Card>
+            <Card className="py-0">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-foreground">
-                  {(profile?.promptCount || promptCount).toLocaleString()}
+                  {(profile?.promptCount || 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Published Prompts
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="py-0">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-foreground">
                   {followersCount.toLocaleString()}
@@ -208,7 +195,7 @@ export function PublicProfileHero({
                 <p className="text-sm text-muted-foreground">Followers</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="py-0">
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-foreground">
                   {(profile?.followingCount || 0).toLocaleString()}
@@ -216,7 +203,7 @@ export function PublicProfileHero({
                 <p className="text-sm text-muted-foreground">Following</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="py-0">
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center gap-2 text-2xl font-bold text-foreground">
                   <Star className="h-5 w-5 text-primary" />

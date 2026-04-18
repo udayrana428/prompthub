@@ -8,6 +8,8 @@ const AIModelTypes = [
   "OTHER",
 ];
 
+const PromptStatuses = ["DRAFT", "PENDING"];
+
 export const createPromptSchema = Joi.object({
   title: Joi.string().trim().max(255).required().messages({
     "any.required": "Title is required.",
@@ -32,6 +34,12 @@ export const createPromptSchema = Joi.object({
     .messages({
       "any.only": `Model type must be one of: ${AIModelTypes.join(", ")}`,
     }),
+  status: Joi.string()
+    .valid(...PromptStatuses)
+    .default("PENDING")
+    .messages({
+      "any.only": `Status must be one of: ${PromptStatuses.join(", ")}`,
+    }),
 
   tags: Joi.array().items(Joi.string().trim()).max(10).default([]),
   tips: Joi.array().items(Joi.string().trim()).default([]),
@@ -45,6 +53,7 @@ export const updatePromptSchema = Joi.object({
   shortDescription: Joi.string().trim().max(500).allow(""),
   description: Joi.string().trim().allow(""),
   modelType: Joi.string().valid(...AIModelTypes),
+  status: Joi.string().valid(...PromptStatuses),
   tags: Joi.array().items(Joi.string().trim()).max(10),
   tips: Joi.array().items(Joi.string().trim()),
   variations: Joi.array().items(Joi.string().trim()),

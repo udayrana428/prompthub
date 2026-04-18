@@ -158,7 +158,7 @@ export function ProfileEditModal({
                       src={
                         avatarPreviewUrl ||
                         profile?.avatarUrl ||
-                        "/placeholder.svg"
+                        "/img/placeholder-user.jpg"
                       }
                       alt={displayName}
                     />

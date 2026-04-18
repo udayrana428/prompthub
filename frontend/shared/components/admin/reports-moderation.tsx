@@ -78,16 +78,16 @@ const reports = [
     type: "prompt",
     contentId: 123,
     contentTitle: "Inappropriate Fantasy Scene",
-    contentPreview: "/placeholder.svg?height=60&width=60",
+    contentPreview: "/img/placeholder.svg?height=60&width=60",
     reporter: {
       name: "John Doe",
       email: "john@example.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reportedUser: {
       name: "BadActor123",
       email: "badactor@example.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reason: "Inappropriate Content",
     description:
@@ -109,12 +109,12 @@ const reports = [
     reporter: {
       name: "Moderator Bot",
       email: "system@prompthub.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reportedUser: {
       name: "SpamUser456",
       email: "spam@example.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reason: "Spam",
     description: "Automated detection of spam content in comments",
@@ -135,12 +135,12 @@ const reports = [
     reporter: {
       name: "Alice Johnson",
       email: "alice@example.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reportedUser: {
       name: "ToxicUser789",
       email: "toxic@example.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reason: "Harassment",
     description:
@@ -158,16 +158,16 @@ const reports = [
     type: "prompt",
     contentId: 321,
     contentTitle: "Copyright Infringement",
-    contentPreview: "/placeholder.svg?height=60&width=60",
+    contentPreview: "/img/placeholder.svg?height=60&width=60",
     reporter: {
       name: "Copyright Holder",
       email: "legal@company.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reportedUser: {
       name: "CopyUser321",
       email: "copy@example.com",
-      avatar: "/placeholder.svg?height=32&width=32",
+      avatar: "/img/placeholder-user.jpg?height=32&width=32",
     },
     reason: "Copyright Violation",
     description: "This prompt uses copyrighted characters without permission",
@@ -432,7 +432,8 @@ export function ReportsModeration() {
                             {report.contentPreview && (
                               <img
                                 src={
-                                  report.contentPreview || "/placeholder.svg"
+                                  report.contentPreview ||
+                                  "/img/placeholder.svg"
                                 }
                                 alt="Content preview"
                                 className="h-10 w-10 rounded object-cover"
@@ -462,7 +463,8 @@ export function ReportsModeration() {
                             <Avatar className="h-6 w-6">
                               <AvatarImage
                                 src={
-                                  report.reporter.avatar || "/placeholder.svg"
+                                  report.reporter.avatar ||
+                                  "/img/placeholder-user.jpg"
                                 }
                                 alt={report.reporter.name}
                               />
@@ -484,7 +486,7 @@ export function ReportsModeration() {
                               <AvatarImage
                                 src={
                                   report.reportedUser.avatar ||
-                                  "/placeholder.svg"
+                                  "/img/placeholder-user.jpg"
                                 }
                                 alt={report.reportedUser.name}
                               />
@@ -702,7 +704,7 @@ export function ReportsModeration() {
                           <img
                             src={
                               selectedReport.contentPreview ||
-                              "/placeholder.svg"
+                              "/img/placeholder.svg"
                             }
                             alt="Content preview"
                             className="h-16 w-16 rounded object-cover"
@@ -726,7 +728,8 @@ export function ReportsModeration() {
                       <Avatar className="h-8 w-8">
                         <AvatarImage
                           src={
-                            selectedReport.reporter.avatar || "/placeholder.svg"
+                            selectedReport.reporter.avatar ||
+                            "/img/placeholder-user.jpg"
                           }
                           alt={selectedReport.reporter.name}
                         />
@@ -756,7 +759,7 @@ export function ReportsModeration() {
                         <AvatarImage
                           src={
                             selectedReport.reportedUser.avatar ||
-                            "/placeholder.svg"
+                            "/img/placeholder-user.jpg"
                           }
                           alt={selectedReport.reportedUser.name}
                         />

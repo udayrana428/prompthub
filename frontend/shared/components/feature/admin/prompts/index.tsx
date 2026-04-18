@@ -239,7 +239,7 @@ export function PromptsIndex() {
         cell: (row) => (
           <div className="flex min-w-0 items-center gap-3 py-3">
             <img
-              src={row.imageUrl || "/placeholder.svg"}
+              src={row.imageUrl || "/img/placeholder.svg"}
               alt={row.title}
               className="h-14 w-14 rounded-lg border border-border object-cover"
             />

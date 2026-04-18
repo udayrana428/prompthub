@@ -73,8 +73,12 @@ export interface FavoritePrompt {
     shortDescription: string | null;
     imageUrl: string | null;
     modelType: string;
+    status: string;
     likesCount: number;
     viewsCount: number;
+    commentsCount: number;
+    favoritesCount: number;
+    featured: boolean;
     createdOn: string;
     category: PromptCategory;
     createdBy: {
